@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smartphonezzz</title>
     <link rel="stylesheet" href="products-style.css">
+    <style id="localStyle"></style>
 </head>
 <body>
     <h1>Barely Used Smart Phone Shop</h1>
 
+    <input id='speedSlider' type='range' min=".1" max="5" step=".1" style="direction: rtl;"
+    onchange="localStyle.innerHTML = '.rotate img {animation-duration: ' + speedSlider.value + 's;}';"
+    >
     <div><main>
         <section class="item" onmouseover="className='item rotate'" onclick="className='item'">
         <h2>HTC</h2>
