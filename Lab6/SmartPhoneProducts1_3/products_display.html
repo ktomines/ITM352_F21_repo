@@ -7,23 +7,25 @@
     <title>Smartphonezzz</title>
     <link rel="stylesheet" href="products-style.css">
     <style id="localStyle"></style>
-    <script>
-    const store_name ="Krizel Tomines";
-    </script> 
+ 
 
 </head>
 
 <body>
 <header>
-    <h1>Barely Used Smart Phone Shop
- <script>
+    <script>
         var hits = 10;
         var spins = 20;
-        document.write(store_name)
-    </script>'s Used Smart Phone Shop</h1>
+        var first_name = "Krizel";
+        var last_name = "Tomines";
+        var store_name = "<p style=font-size:300%>" + "<B>" + first_name + "</b> <i>" + last_name + "</i>" + "'s</p><p style=font-size:200%> Used Smart Phone Store</p>"; 
+        document.write(store_name);
+    </script>
     <p>
         Hits: <span id="hits_span"> 0 </span>
         Spins:<span id="spins_span"> 0 </span>
+        Hit/Spin:<span id="hit_spin_span"> 0</span>
+
     </p>
     
 
@@ -31,12 +33,22 @@
     <input id='speedSlider' type='range' min=".1" max="5" step=".1" style="direction: rtl;"
     onchange="localStyle.innerHTML = '.rotate img {animation-duration: ' + speedSlider.value + 's;}';"
     >
-    <div><main>
+    <div>
+        <main>
         <section class="item" onmouseover="
             className='item rotate'
-            spins = spins + 1;
+            // spins++;
+            spins += 1;
             spins_span.innerHTML = spins;
-        " onclick="className='item' ">
+            temp = hits /spins;
+            hit_spin_span.innerHTML = temp.toFixed(2); 
+        " onclick=" 
+            hits += 1;
+            hits_span.innerHTML = hits;
+            temp = hits /spins;
+            hit_spin_span.innerHTML = temp.toFixed(2); 
+            className='item'"
+        >
         <h2>HTC</h2>
         <p>&dollar;40.00</p>
         <img src="http://dport96.github.io/ITM352/morea/080.flow-control-II/HTC.jpg" alt="photo"</img>
@@ -61,7 +73,22 @@
         <p>&dollar;10.00</p>
         <img src="http://dport96.github.io/ITM352/morea/080.flow-control-II/Blackberry.jpg" alt="photo"</img>
     </section>
-</main></div>
-<h2>Your One Stop Phone Shop Fam</h2>
+</main>
+</div>
+
+<footer>
+    <script>
+   var now = new Date();
+       document.write(`
+       <table border="1" style="margin-left: auto; margin-right: auto; text-align: center;">
+        <tr><th colspan="2"><h1>Your One Stop For Used Phones - ${first_name[0]}.${last_name[0]}.'s</h1></th></tr>
+        <tr><td>1.</td><td><br />Copyright @ ${first_name + ' ' + last_name}</td></tr>
+        <tr><td>2.</td><td>${now.getFullYear()}</td></tr>
+        <tr><td>3.</td><td>${(now.getHours() + 11) % 12 + 1 }:${now.getMinutes() + (now.getMinutes() <10?'0':'')}${(now.getHours() < 12)?'AM':'PM'}</td></tr>
+        </table>
+
+       `);
+       </script>
+</footer>
 </body>
 </html>
