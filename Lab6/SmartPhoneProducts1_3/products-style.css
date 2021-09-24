@@ -10,6 +10,7 @@ img {
 }
 h1 {
     text-align: center;
+    color: pink;
 }
 h2 {
     text-align: center;
@@ -24,7 +25,7 @@ main {
 }
 
 div {
-    border: 5px solid black;
+    border: 5px solid peachpuff;
     display: flex;
 }
 .rotate img
@@ -40,3 +41,12 @@ div {
     transform: rotate(359deg);
   }
 }
+header {
+  border: 5px solid black;
+  border-bottom: 0;
+}
+footer {
+  border: 5px solid black;
+  border-top: 0;
+}
+
