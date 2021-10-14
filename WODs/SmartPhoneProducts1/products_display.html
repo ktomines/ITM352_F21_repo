@@ -35,19 +35,23 @@
     <link rel="stylesheet" href="products-style.css">
 </head>
 <body>
+    <header>
     <h1>Used Smart Phone Shop</h1>
-    <div><main>
+    </header>
+    <div>
+        <main>
     <script>
         for (i= 1; i <= num_items; i++) {
        document.write(`
 <section class="item">
         <h2>${eval('brand' + i)}</h2>
-        <p>${eval('price' + i)}</p>
-        <img src=${eval('image' + i)}</img>
+        <p>$${eval('price' + i)}</p>
+        <img src="${eval('image' + i)}"</img>
     </section>
-    </script>
+  
     `);
-            }
+            } 
+    </script>
 </main>
 </div>
 <h2>Your One Stop Phone Shop Fam</h2>
