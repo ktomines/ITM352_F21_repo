@@ -1,0 +1,38 @@
+<script src="./products_data.js">
+
+</script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartphonezzz</title>
+    <link rel="stylesheet" href="products-style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Used Smart Phone Shop</h1>
+    </header>
+    <div>
+        <main>
+            <script>
+                for (i = 0; i < products.length; i++) {
+                    document.write(`
+<section class="item">
+        <h2>${products[i].brand}</h2>
+        <p>$${products[i].price}</p>
+        <img src="${products[i].image}"</img>
+    </section>
+
+    `);
+                }
+            </script>
+        </main>
+    </div>
+    <h2>Your One Stop Phone Shop Fam</h2>
+</body>
+
+</html>
