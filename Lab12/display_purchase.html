@@ -9,10 +9,16 @@
 <body>
     <script>
         let params = (new URL(document.location)).searchParams; 
-    // Check if textbox exists
-    if (params.has(`quantity_textbox`)){
-        document.body.innerHTML = `Thank you for ordering ${params.get('quantity_textbox')} things!`;
-    }
+   
+        // Check if textbox exists
+        if (params.has(`quantity_textbox`)) {
+            if(isNonNegativeInteger(params.get('quantity_textbox'))) {
+            document.body.innerHTML = `Thank you for ordering ${params.get('quantity_textbox')} items`;
+        } else {
+            document.body.innerHTML = `Invalid quantity bozo - press Back and try again`;
+             //window.location.href = "display_purchase.html" + document.location.search;
+        }
+        }
     </script>
 
    
