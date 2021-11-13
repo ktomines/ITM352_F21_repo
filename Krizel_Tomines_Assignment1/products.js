@@ -1,0 +1,1 @@
+<script src="./products.json" type="text/javascript"></script>
