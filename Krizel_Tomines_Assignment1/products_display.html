@@ -1,16 +1,74 @@
+<script>
+    var products = 
+    [
+    {
+        "brand": "Assam Milk Tea",
+        "price": 5.00,
+        "image": "assam.jpeg",
+        "quantity_available": 30
+    },
+    {
+        "brand": "Rabbit Signature",
+        "price": 5.00,
+        "image": "rbtsig.jpeg",
+        "quantity_available": 20
+    },
+    {
+        "brand": "Lychee Green Tea",
+        "price": 5.00,
+        "image":  "lycheegreen.jpeg",
+        "quantity_available": 60
+    },
+    {
+        "brand": "Tiramisu Milk Tea",
+        "price": 4.00,
+        "image":  "tiramisu.jpeg",
+        "quantity_available": 70
+    },
+
+    {
+        "brand": "Queen of Hearts Mojito",
+        "price": 5.00,
+        "image":  "mojito.jpeg",
+        "quantity_available": 80
+    }
+];
+
+</script>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kri's Boba</title>
+    <title>Boba by Kri</title>
+    <link rel="stylesheet" href="products-style.css">
 </head>
+
 <body>
-    <form name="product_selection_form" action="" method="GET">
-        <header>
-            <h1> </h1>
-        </header>
-    </form>
+    <header>
+        <h1>Boba Bar</h1>
+    </header>
+    <div>
+        <main>
+            <script>
+                for (i = 0; i < products.length; i++) {
+                    document.write(`
+<section class="item">
+        <h2>${products[i].brand}</h2>
+        <p>Price: $${products[i].price}</p>
+        <p>Quantity Avaliable: ${products[i].quantity_available}</p>
+        <img src="./images/${products[i].image}"</img>
+        
+    </section>
+
+    `);
+                }
+            </script>
+        </main>
+    </div>
+    <h2>Your One Stop Phone Shop Fam</h2>
 </body>
+
 </html>

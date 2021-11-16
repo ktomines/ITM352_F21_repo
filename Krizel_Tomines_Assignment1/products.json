@@ -2,7 +2,7 @@
     {
         "brand": "Assam Milk Tea",
         "price": 5.00,
-        "image": "https://www.rabbitrabbitteato.com/uploads/1/2/7/4/127429155/s804330027880979260_p12_i1_w2560.jpeg",
+        "image": "assam.jpeg",
         "quantity_available": 5
     },
 
@@ -10,7 +10,7 @@
     {
         "brand": "Rabbit Signature",
         "price": 5.00,
-        "image": "https://www.rabbitrabbitteato.com/uploads/1/2/7/4/127429155/s804330027880979260_p25_i1_w1280.jpeg",
+        "image": "rbtsig.jpeg",
         "quantity_available": 5
     },
 
@@ -18,7 +18,7 @@
     {
         "brand": "Lychee Green Tea",
         "price": 5.00,
-        "image":  "https://www.rabbitrabbitteato.com/uploads/1/2/7/4/127429155/s804330027880979260_p34_i1_w1280.jpeg",
+        "image":  "lycheegreen.jpeg",
         "quantity_available": 5
     },
 
@@ -26,7 +26,7 @@
     {
         "brand": "Tiramisu Milk Tea",
         "price": 4.00,
-        "image":  "https://www.rabbitrabbitteato.com/uploads/1/2/7/4/127429155/s804330027880979260_p20_i1_w1280.jpeg",
+        "image":  "tiramisu.jpeg",
         "quantity_available": 5
     },
 
@@ -34,7 +34,7 @@
     {
         "brand": "Queen of Hearts Mojito",
         "price": 5.00,
-        "image":  "https://www.rabbitrabbitteato.com/uploads/1/2/7/4/127429155/s804330027880979260_p26_i1_w1280.jpeg",
+        "image":  "mojito.jpeg",
         "quantity_available": 5
     }
 ]
