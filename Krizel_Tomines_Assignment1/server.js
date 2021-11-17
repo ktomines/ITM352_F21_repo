@@ -28,6 +28,11 @@ app.get("/products_display", function (request, response) {
     var contents = fs.readFileSync('./views/products_display.html', 'UTF8');
     response.send(eval('`' + body + '`')); // to evaluate the string
 
+// to monitor all process requests    
+app.all('*', function (request, response, next) {
+    console.log(request.method + ' to ' + request.path);
+    next();
+     });
 
 // to process purchase request
 function checkQuantityTextbox(theTextbox) {

@@ -5,24 +5,32 @@ body {
 }
 img {
     width: 200px;
-    height: 200px;
+    height: 300px;
     border: 1px solid rgb(17, 14, 14);
 }
 h1 {
     text-align: center;
 }
 h2 {
-    text-align: center;
+    text-align: left;
+    
 }
+
 /* Layout */
 main {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
     background-repeat: no-repeat;
-}
+}.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+  }
 div {
-    border: 5px solid black;
+    border: 3px solid black;
     display: flex;
 }
-html {background-color: pink} 
+html {background-color: oldlace} 
+
