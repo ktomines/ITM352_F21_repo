@@ -45,14 +45,16 @@
     <title>Boba by Kri</title>
     <link rel="stylesheet" href="products-style.css">
 </head>
+<body id="theBody">
 
 <body>
     <header>
         <h1>Boba Bar</h1>
     </header>
-    <form action="./invoice.html" method="GET"></form>
-
+    <form action="./invoice.html" method="POST">
+</form>
     <div>
+
         <main>
             <script>
                 for (i = 0; i < products.length; i++) {
@@ -61,7 +63,7 @@
         <h2>${products[i].brand}</h2>
         <p>Price: $${products[i].price}</p>
         <label>Quantity</label>
-        <input type="text" placeholder="0">
+        <input type="text" placeholder="0" name="quantity${i}">
         <img src="./images/${products[i].image}"</img>
         
     </section>
@@ -69,12 +71,11 @@
     `);
                 }
             </script>
-        <form action="invoice.html">
-            <input type="submit" value="purchase" />
-        </form>
+
         </form>
    
     </div>
+    <input type="submit" value="purchase">
     <h2>Your One Stop Boba Shop Fam</h2>
 </body>
 

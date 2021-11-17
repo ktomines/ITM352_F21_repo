@@ -1,0 +1,84 @@
+<script src="./product_data.js" type="text/javascript"></script>
+<script>
+    /* Script to make an invoice */
+
+    let params = (new URL(document.location)).searchParams;
+    var quantities = [];
+    // form was submitted so process the invoice
+    if (params.has('purchase_submit')) {
+        for (i = 0; i < products.length; i++) {
+            if (params.has(`quantity${i}`)) {
+                a_qty = params.get(`quantity${i}`);
+                quantities[i] = a_qty;
+            }
+        }
+    } else {
+        document.write('no form submitted');
+    }
+    console.log(quantities);
+
+    function isNonNegInt(inputString, returnErrors = false) {
+        errors = []; // Assume no errors at first
+        if (Number(inputString) != inputString) errors.push('Not a number!'); // Check if string is a number value
+        if (inputString < 0) errors.push('Negative value!'); // Check if it is non-negative
+        if (parseInt(inputString) != inputString) errors.push('Not an integer!'); // Check that it is an integer
+        return returnErrors ? errors : (errors.length == 0);
+    }
+
+    function generate_item_rows(product_quantities_array) {
+        for (i = 0; i < product_quantities_array.length; i++) {
+            qty = product_quantities_array[i];
+            errs = isNonNegInt(qty, true);
+            if (qty == 0) {
+                continue;
+            }
+            if (errs.length == 0) {
+                extended_price = qty * products[i].price;
+                subtotal = extended_price + subtotal;
+            } else {
+                qty = `<span style="color:red;">${qty}<br>${errs.join("<br>")}</span>`;
+            }
+            document.write(`
+                <tr>
+                    <td width="43%">${products[i].brand}</td>
+                    <td align="center" width="11%">${qty}</td>
+                    <td width="13%">$${products[i].price}</td>
+                    <td width="54%">$${extended_price}</td>
+                </tr>
+                `)
+        }
+    }
+
+
+
+      <main>
+    <section class="Assam Milk Tea" <h2>Assam Milk Tea</h2>
+      <p>$5</p>
+      <label>Quantity</label>
+      <input type="text" placeholder="0">
+      <img src="assam.jpeg" alt="assam milk tea" </section>
+
+      <section class="Rabbit Signature" <h2>Rabbit Signature</h2>
+        <p>$5</p>
+        <label>Quantity</label>
+        <input type="text" placeholder="0">
+        <img src="rbtsig.jpeg" alt="assam milk tea" </section>
+
+        <section class="Lychee Green Tea" <h2>Lychee Green Tea</h2>
+          <p>$5</p>
+          <label>Quantity</label>
+          <input type="text" placeholder="0">
+          <img src="lycheegreen.jpeg" alt="lycheegreen" </section>
+
+          <section class="Tiramisu Milk Tea" <h2>Tiramisu Milk Tea</h2>
+            <p>$5</p>
+            <label>Quantity</label>
+            <input type="text" placeholder="0">
+            <img src="tiramisu.jpg" alt="tiramisu" </section>
+
+            <section class="Queen of Hearts Mojito" <h2>Queen of Hearts Mojito</h2>
+              <p>$5</p>
+              <label>Quantity</label>
+              <input type="text" placeholder="0">
+              <img src="mojito.jpeg" alt="Queen of Hearts Mojito" </section>
+
