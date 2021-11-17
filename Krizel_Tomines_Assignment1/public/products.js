@@ -33,3 +33,4 @@ var products =
 }
 ]
 // an array of the products i would like to sell 
+exports.prods = products;

@@ -1,19 +1,17 @@
 
-<script src="products.js"> //the invoice of my boba shop
+<script src="products.js"> //the invoice of my boba shop// Mark Chou/ Examples Labs/ 
 </script>
 <script>
 let params = (new URL(document.location)).searchParams;
 var quantities = [];
-if (params.has('purchase_submit')) {
+
   for (i = 0; i < products.length; i++) {
     if (params.has(`quantity${i}`)) {
       a_qty = params.get(`quantity${i}`);
       quantities[i] = a_qty;
     }
   }
-} else {
-  document.write('no form submitted');
-}
+
 console.log(quantities);
 </script>
 <head>
