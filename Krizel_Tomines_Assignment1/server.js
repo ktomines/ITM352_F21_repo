@@ -23,13 +23,13 @@ function isNonNegInt(inputstring, returnErrors = false) {
     }           
     return returnErrors ? errors : (errors.length == 0);
 } 
-// displays the products on the browser to the client. GETS the products_display.html
+// routing
 app.get("/products_display", function (request, response) {
     var contents = fs.readFileSync('./views/products_display.html', 'UTF8');
     response.send(eval('`' + body + '`')); // to evaluate the string
 
 
-// to check the Quantity textbox for validation errors
+// to process purchase request
 function checkQuantityTextbox(theTextbox) {
     errors = isNonNegInt(theTextbox.value, true); // setting errors to isNonNegInt
     if (errors.length == 0) errors = ['You would like:']; 
