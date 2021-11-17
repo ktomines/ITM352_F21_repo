@@ -50,6 +50,8 @@
     <header>
         <h1>Boba Bar</h1>
     </header>
+    <form action="./invoice.html" method="GET"></form>
+
     <div>
         <main>
             <script>
@@ -58,7 +60,8 @@
 <section class="item">
         <h2>${products[i].brand}</h2>
         <p>Price: $${products[i].price}</p>
-        <p>Quantity Avaliable: ${products[i].quantity_available}</p>
+        <label>Quantity</label>
+        <input type="text" placeholder="0">
         <img src="./images/${products[i].image}"</img>
         
     </section>
@@ -66,9 +69,13 @@
     `);
                 }
             </script>
-        </main>
+        <form action="invoice.html">
+            <input type="submit" value="purchase" />
+        </form>
+        </form>
+   
     </div>
-    <h2>Your One Stop Phone Shop Fam</h2>
+    <h2>Your One Stop Boba Shop Fam</h2>
 </body>
 
 </html>
