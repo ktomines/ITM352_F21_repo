@@ -6,7 +6,7 @@ body {
 img {
     width: 200px;
     height: 200px;
-    border: 1px solid #ddd;
+    border: 1px solid rgb(17, 14, 14);
 }
 h1 {
     text-align: center;
@@ -19,10 +19,10 @@ main {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
-    background-image: url(images/phone_globe.jpeg);
     background-repeat: no-repeat;
 }
 div {
     border: 5px solid black;
     display: flex;
 }
+html {background-color: pink} 
