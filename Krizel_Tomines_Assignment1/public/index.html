@@ -22,9 +22,29 @@ function isNonNegInt(inputstring, returnErrors = false) {
         if (inputstring == 0) errors.push('<font color="red">Enter a Number!</font>')
         if(inputstring < 0) errors.push('<font color="red">Negative value!</font>'); // Check if it is non-negative
         if(parseInt(inputstring) != inputstring) errors.push('<font color="red">Not an integer!</font>'); // Check that it is an integer
-    }           
+        //to deny customers from ordering more than whats avaliable
+        
+        if(inputstring > 9) errors.push('<font color="red">Too much!</font>');// FIGURE OUT HOW TO MAKE IT MORE THAN 1 
+    
+        }
+           
     return returnErrors ? errors : (errors.length == 0);
-} 
+   
+    inputstring = 9;
+// author meagar from stackoverflow
+switch(true) {
+case inputstring == 9:
+  jq(this).closest(".stylesummarytext").prev()
+    .append('<div class="styleoverlay soldout"><span>Sold Out</span></div>');  
+  break;
+case inputstring < 9:
+  jq(this).closest(".stylesummarytext").prev()
+    .append('<div class="styleoverlay sellingout"><span>Selling Out</span></div>'); 
+  break;
+}
+}
+
+
 </script>
 <!DOCTYPE html>
 <html lang="en">

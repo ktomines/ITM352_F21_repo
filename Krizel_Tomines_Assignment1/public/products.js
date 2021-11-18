@@ -4,7 +4,7 @@ var products =
     "brand": "Assam Milk Tea",
     "price": 5.00,
     "image": "assam.jpeg",
-    "quantity_available": 30
+    "quantity_available": 9
 },
 {
     "brand": "Rabbit Signature",
