@@ -1,4 +1,5 @@
-// Author: Kazman/Port & WODS & Labs
+//Krizel Tomines 
+//Author: Kazman/Port & WODS & Labs
 // I start my page by going to the server http://127.0.0.1:8080/index.html
 var express = require('express'); //code for server
 var qs = require('querystring');
