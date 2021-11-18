@@ -11,14 +11,19 @@ function checkQuantityTextbox(theTextbox) {
     document.getElementById(theTextbox.name + '_label').innerHTML = errors.join('<font color="red">, </font>');
 }       
 //to check if the value is a positive whole number
-function isNonNegInt(q, return_errors = false) {
-        errors = [];
-        if (q == '') q = 0;
-        if (Number(q) != q) errors.push('<font color="red">Enter a number!</font>'); //to check if value is a number
-        else if (q < 0) errors.push('<font color="red">Enter a positive value.!</font>'); //to check if value is a positive number
-        else if (parseInt(q) != q) errors.push('<font color="red">Enter a whole number!</font>'); //to check if value is a whole number
-        return return_errors ? errors : (errors.length == 0);
+function isNonNegInt(inputstring, returnErrors = false) {
+    errors = []; // assume no errors at first
+    if(Number(inputstring) != inputstring) {
+        errors.push('<font color="red">Not a number!</font>'); // Check if string is a number value
     }
+    else 
+    {
+        if (inputstring == 0) errors.push('<font color="red">Enter a Number!</font>')
+        if(inputstring < 0) errors.push('<font color="red">Negative value!</font>'); // Check if it is non-negative
+        if(parseInt(inputstring) != inputstring) errors.push('<font color="red">Not an integer!</font>'); // Check that it is an integer
+    }           
+    return returnErrors ? errors : (errors.length == 0);
+} 
 </script>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,7 +95,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Karma", sans-serif}
    
     </div>
     <script>//submit button </script>
-    <input type="submit" value="purchase"> 
+    <input type="submit" value="purchase" name="purchasebutton"> 
     <h2>Your One Stop Boba Shop Fam</h2>
        </form>
 </body>
