@@ -1,10 +1,11 @@
 ---
 layout: essay
 type: essay
-title: Igniting the fire
-date: 2021-09-08
+title: Progress in Programming Report
+date: 2021-11-18
 labels:
-  - WOD
+  - Project
+  - 50% of our grade pressure
 ---
 My programming skills have greatly improved in the following ways:
 Through the Assignment1 project, I was able to wrap my head around the concepts of Javascript such as if and else statements, the difference between server.js and live-server, and how to upload my code to a public server.
