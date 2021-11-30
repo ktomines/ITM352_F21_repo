@@ -1,8 +1,12 @@
-//Krizel Tomines 
-//Author: Kazman/Port & WODS & Labs
+
+/* 
+ * Author: Krizel Tomines; November 29th, 2021
+ * Server to display products, validate pruchases, & display an invoice for the user
+ */
 var express = require('express'); //code for server
 var qs = require('querystring');
 var app = express();
+
 
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 app.get("/index", function (request, response) {
@@ -77,7 +81,45 @@ app.post('/process_invoice', function (request, response, next) {
 //error bag
 var errors={};
 
+// will create a login page 
+var users_reg_data = 
+{
+"dport": {"password": "portpass"},
+"kazman": {"password": "kazpass"}
+};
 
+app.use(express.urlencoded({extended:true}));
+
+app.get("/login", function (request, response) {
+
+// Give a simple login form
+//Author: Kazman/ Port; Example from 352 Module 
+str = `
+<body>
+<form action="" method="POST">
+<input type="text" name="username" size="40" placeholder="enter username" ><br />
+<input type="password" name="password" size="40" placeholder="enter password"><br />
+<input type="submit" value="Submit" id="submit">
+</form>
+</body>
+    `;
+response.send(str);
+});
+
+app.post("/login", function (request, response) {
+    // Process login form POST and redirect to logged in page if ok, back to login page if not
+    the_username = request.body['username'].toLowerCase();
+    the_password = request.body['password'];
+    if (typeof users_reg_data[the_username] != 'undefined') {
+        if (users_reg_data[the_username].password == the_password) {
+            response.send(`User ${the_username} is logged in`);
+        } else {
+            response.send(`Wrong password!`);
+        }
+        return;
+    }
+    response.send(`${the_username} does not exist`);
+});
 
 
 //if the data is valid, send them to the invoice, otherwise send them back to index
@@ -88,40 +130,6 @@ if(Object.keys(errors).length == 0) {
 }
 });
 
-// Validate the quantities. If one quantity is invalid, return an error query with all of the quantities (for sticky purposes)
-let errorRedirectQuery = 'store?error=Invalid%20Quantity';
-let badQuantity = false;
-let overMax = false;
-for (i = 0; i < products_array.length; i++) {
-    let quantityLeft = products_array[i].quantity_available - products_array[i].total_sold;
-    if (typeof POST[`quantity${i}`] != 'undefined') {
-        a_qty = Number(POST[`quantity${i}`]);
-        errorRedirectQuery += "&quantity" + i + '=';
-        if (!isNonNegativeInt(a_qty)) {
-            // Put error messages into this array to display error messages later
-            quantities_errors[i] = isNonNegativeInt(a_qty, true);
-            badQuantity = true;
-            if (isNaN(a_qty)) {
-                errorRedirectQuery += POST[`quantity${i}`];
-            } else {
-                errorRedirectQuery += a_qty;
-            }
-        } else if (a_qty > quantityLeft) {
-            // Check that the desired quantity isn't over the max allowable
-            if (quantityLeft == 0) {
-                quantities_errors[i] = ["Sorry we're out of stock"];
-            } else {
-                quantities_errors[i] = ["Adjusted to the maximum allowable"];
-            }
-            overMax = true;
-            errorRedirectQuery += quantityLeft;
-        } else {
-            // No errors for this quantity
-            quantities_errors[i] = [];
-            errorRedirectQuery += a_qty;
-        }
-    }
-}
 
 
 // handles request for any static files
