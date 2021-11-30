@@ -10,9 +10,22 @@ app.use(cookieParser());
 app.use(myParser.urlencoded({ extended: true }));
 app.use(express.static('./public')); //helps redirect to products page 
 
+
+if (fs.existsSync(filename)) {
+    data = fs.readFileSync(filename, 'utf-8');
+
+    user_data = JSON.parse(data);
+    console.log("User_data=", user_data);
+
+    fileStats = fs.statSync(filename);
+    console.log("File " + filename + " has " + fileStats.size + " characters");
+} else {
+    console.log("Enter the correct filename bozo!");
+}
+
 app.get("/set_cookie", function (request,response){
     my_name = "Rick Kazman";
-    response.cookies("My Name", my_name, {maxAge: 30*60*1000}).send("Cookie sent"); //get page
+    response.cookie("My Name", my_name, {maxAge: 30*60*1000}).send("Cookie sent"); //get page
 }
 );
 
@@ -35,23 +48,6 @@ app.get("/login", function (request, response) {
     `;
     response.send(str);
 });
-
-
-
-
-if (fs.existsSync(filename)) {
-    data = fs.readFileSync(filename, 'utf-8');
-
-    user_data = JSON.parse(data);
-    console.log("User_data=", user_data);
-
-    fileStats = fs.statSync(filename);
-    console.log("File " + filename + " has " + fileStats.size + " characters");
-} else {
-    console.log("Enter the correct filename bozo!");
-}
-
-
 
 
 //method was post so we grab user & pass from post
