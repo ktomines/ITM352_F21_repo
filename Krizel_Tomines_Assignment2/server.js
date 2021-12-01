@@ -1,12 +1,9 @@
-
-/* 
- * Author: Krizel Tomines; November 29th, 2021
- * Server to display products, validate pruchases, & display an invoice for the user
- */
+//Krizel Tomines 
+//Author: Kazman/Port & WODS & Labs
 var express = require('express'); //code for server
 var qs = require('querystring');
 var app = express();
-var querystring = require("query-string");
+
 
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 app.get("/index", function (request, response) {
@@ -32,7 +29,7 @@ app.get("/index", function (request, response) {
 
             // makes sure the quantity inputted by the user is validated. 
             if (typeof req.query['purchase_submit'] != 'undefined') {
-
+        
                 for (i = 0; i < products.length; i++) {
                     if (params.has(`quantity${i}`)) {
                         a_qty = params.get(`quantity${i}`);
@@ -45,12 +42,12 @@ app.get("/index", function (request, response) {
                         }
                     }
                 }
-
+                
                 console.log(Date.now() + ': Purchase made from ip ' + req.ip + ' data: ' + JSON.stringify(req.query)); //log purchase quantities
             }
             next();
         }
-
+        
         return str;
     }
 });
@@ -77,84 +74,18 @@ app.all('*', function (request, response, next) {
 });
 
 app.post('/process_invoice', function (request, response, next) {
-    //to validate data
-    //error bag
-    var errors = {};
-
-    // will create a login page 
-    var users_reg_data =
-    {
-        "dport": { "password": "portpass" },
-        "kazman": { "password": "kazpass" }
-    };
-
-    app.use(express.urlencoded({ extended: true }));
-
-    app.get("/login", function (request, response) {
-
-        // Creates a login form for user
-        //Author: Kazman/ Port; Example from 352 Module 
-        str = `
-<body>
-<form action="" method="POST">
-<input type="text" name="username" size="40" placeholder="enter username" ><br />
-<input type="password" name="password" size="40" placeholder="enter password"><br />
-<input type="submit" value="Submit" id="submit">
-</form>
-</body>
-    `;
-        response.send(str);
-    });
-
-    app.post("/login", function (request, response) {
-        // Process login form POST and redirect to logged in page if ok, back to login page if not
-        the_username = request.body['username'].toLowerCase();
-        the_password = request.body['password'];
-        if (typeof users_reg_data[the_username] != 'undefined') {
-            if (users_reg_data[the_username].password == the_password) {
-                response.send(`User ${the_username} is logged in`);
-            } else {
-                response.send(`Wrong password!`);
-            }
-            return;
-        }
-        response.send(`${the_username} does not exist`);
-    });
-
-
-    //author: Kazman & Maggie M.; sends user login page, if accepted will go to invoice
-    //sends response
-    app.post("/process_form", function (request, response)
-    {
-    request_post = request.body;
-    values_okay = true;
-    for (i in request.post) {
-        elem = request_post["quantity" + i];
-        if (isNonNegInt(elem) != true) {
-            values_okay = false; 
-        }
-    }
-    if (values_okay == true) {
-        //redirects user to invoice
-        querystring = ""; //records info we need to share that needs to be passed
-        //need for loop that builds query string
-        response.redirect("/invoice.html" +"?"+ querystring); //need a var & build query string in for loop
-            //(request.body, response);
-       for (i in request.post);
-       
-       
-    }
-});
-
+//to validate data
+//error bag
+var errors={};
 
 
 
 
 //if the data is valid, send them to the invoice, otherwise send them back to index
-if (Object.keys(errors).length == 0) {
-    response.redirect('./invoice.html?' + qs.stringify(request.body)); //move to invoice page if no errors
-} else {
-    response.redirect('./index?' + qs.stringify(request.body));
+if(Object.keys(errors).length == 0) {
+    response.redirect('./invoice.html?'+ qs.stringify(request.body)); //move to invoice page if no errors
+}else{
+    response.redirect('./index?'+ qs.stringify(request.body));
 }
 });
 
