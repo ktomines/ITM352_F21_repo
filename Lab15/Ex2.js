@@ -32,14 +32,13 @@ app.get("/use_session", function (request, response) {
 );
 
 // tell user how many times they visited
-app.get("/", function (request,response){
-    if (request.session.page_views){
-    response.session.page_views++;
-    //FIXXX *********
-    //request.send("Welcome back. This is visit #" + request.session.page_views);
+app.get("/", function (request, response) {
+    if (request.session.page_views) {
+       request.session.page_views++;
+       response.send("Welcome back.  This is vist # " + request.session.page_views);
     } else {
-        request.session.page_views = 1; // puts into a session
-        response.send("Welcome to this page for the first time!")
+        request.session.page_views = 1;
+        response.send("Welcome to this page for the first time!");
     }
 }
 );

@@ -29,7 +29,6 @@ app.get("/index", function (request, response) {
 
             // makes sure the quantity inputted by the user is validated. 
             if (typeof req.query['purchase_submit'] != 'undefined') {
-        
                 for (i = 0; i < products.length; i++) {
                     if (params.has(`quantity${i}`)) {
                         a_qty = params.get(`quantity${i}`);
