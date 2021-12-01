@@ -7,7 +7,7 @@ var queryString = require("query-string");
 
 app.use(myParser.urlencoded({ extended: true }));
 
-app.use(express.static('./public')); //helps redirect to products page 
+app.use(express.static('./public'));
 
 if (fs.existsSync(filename)) {
     data = fs.readFileSync(filename, 'utf-8');
@@ -24,9 +24,8 @@ if (fs.existsSync(filename)) {
 
 app.get("/login", function (request, response) {
     // Give a simple login form
-    str = `
-<body>
-<form action="" method="POST">
+    str = `<body>
+<form action="/login" method="POST">
 <input type="text" name="username" size="40" placeholder="enter username" ><br />
 <input type="password" name="password" size="40" placeholder="enter password"><br />
 <input type="submit" value="Submit" id="submit">
@@ -36,7 +35,6 @@ app.get("/login", function (request, response) {
     response.send(str);
 });
 
-//method was post so we grab user & pass from post
 app.post("/login", function (request, response) {
     // Process login form POST and redirect to logged in page if ok, back to login page if not
     console.log("Got a POST to login");
@@ -45,14 +43,13 @@ app.post("/login", function (request, response) {
     user_name = POST["username"];
     user_pass = POST["password"];
     console.log("User name=" + user_name + " password=" + user_pass);
-
     if (user_data[user_name] != undefined) {
-        if (user_data[user_name].password == user_pass) { //does the login name match the pass in user data; got 2 bits of data
+        if (user_data[user_name].password == user_pass) {
             // Good login
             response.redirect("products_page.html");
         } else {
             // Bad login, redirect
-            response.send("Sorry bro");// NEED to redirect them to the login page
+            response.send("Sorry bud");
         }
     } else {
         // Bad username
@@ -63,22 +60,19 @@ app.post("/login", function (request, response) {
 
 app.get("/register", function (request, response) {
     // Give a simple register form
-    str = `
-<body>
-
+    str = `<body>
 <form action="/register" method="POST">`;
     if (request.query["name_err"] == undefined) {
         str += `<input type="text" name="username" size="40" placeholder="enter username" ><br>`;
-    } else { //makes info sticky; tells user what they did wrong
-        str += `<input type="text" name="username" size="40" placeholder="${request.query['name_err']}">User already exists!"<br>`;
+    } else {
+        str += `<input type="text" name="username" size="40" placeholder="${request.query['name_err']}">User already exists<br>`;
     }
 
-    str += `
-<input type="password" name="password" size="40" placeholder="enter password"><br />
-<input type="password" name="repeat_password" size="40" placeholder="enter password again"><br />
+    str += `<input type="password" name="password" size="40" placeholder="enter password"><br>
+<input type="password" name="repeat_password" size="40" placeholder="enter password again"><br>
 <input type="email" name="email" size="40" placeholder="enter email"><br>
 <input type="submit" value="Submit" id="submit">
-</form>
+</form> 
 </body>
     `;
     response.send(str);
@@ -92,11 +86,11 @@ app.post("/register", function (request, response) {
     user_name = POST["username"];
     user_pass = POST["password"];
     user_email = POST["email"];
+    user_pass2 = POST["repeat_password"];
     query_response = "";
 
-    // allows user to create a new acc
     if (user_data[user_name] == undefined) {
-        console.log("Adding user:" + user_name + user_pass);
+        console.log("Adding user: " + user_name);
 
         user_data[user_name] = {};
         user_data[user_name].name = user_name;
@@ -106,13 +100,12 @@ app.post("/register", function (request, response) {
         data = JSON.stringify(user_data);
         fs.writeFileSync(filename, data, "utf-8");
 
-        response.redirect("login"); //takes user back to login page if incorrect 
+        response.redirect("login");
     } else {
         query_response += "name_err=" + user_name;
-        console.log("Bad request to add user:" + user_name);
-        response.redirect("register" + "?" + query_response); //query string makes data sticky so info is saved if user messed up
+        console.log("Bad request to add user: " + user_name);
+        response.redirect("register" + "?" + query_response);
     }
-
 });
 
 app.listen(8080, () => console.log(`listening on port 8080`));
