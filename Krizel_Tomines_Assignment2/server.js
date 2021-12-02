@@ -7,7 +7,7 @@ var app = express();
 
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 app.get("/index", function (request, response) {
-    var contents = fs.readFileSync('./views/index.html', 'utf8');
+    var contents = fs.readFileSync('./views/index.html', 'utf8'); //reads index file & saves contents in it 
     response.send(eval('`' + body + '`')); // render template string
 
     //author: nate moylan; 
@@ -35,7 +35,7 @@ app.get("/index", function (request, response) {
                         // make textboxes sticky in case of invalid data
                         product_selection_form[`quantity${i}`].value = a_qty;
                         total_qty += a_qty;
-                        if (!isNonNegInt(a_qty)) {
+                        if (!isNonNegInteger(a_qty)) {
                             has_errors = true; // if invalid quantity
                             checkQuantityTextbox(product_selection_form[`quantity${i}`]); // shows where the error is
                         }
@@ -54,7 +54,7 @@ app.get("/index", function (request, response) {
 // to validate that an input value = a non negative integer
 // inputstring is the input string; returnErrors indicates how the function returns
 // true = return the array, false = return a boolean.    
-function isNonNegInt(inputstring, returnErrors = false) {
+function isNonNegInteger(inputstring, returnErrors = false) {
     errors = []; // assume no errors at first
     if (Number(inputstring) != inputstring) {
         errors.push('Not a number!'); // this is to check if string = a number value
@@ -62,7 +62,10 @@ function isNonNegInt(inputstring, returnErrors = false) {
     else {
         if (inputstring < 0) errors.push('Negative value!'); // to check if it is non-negative
         if (parseInt(inputstring) != inputstring) errors.push('Not an integer!'); // to check that it's an integer
+        if (inputstring > 9) errors.push('Sorry, We Are Out. We Will Make More Soon');
+
     }
+
     return returnErrors ? errors : (errors.length == 0);
 }
 // routing
