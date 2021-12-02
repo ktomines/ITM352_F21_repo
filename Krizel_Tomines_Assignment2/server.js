@@ -3,6 +3,8 @@
 var express = require('express'); //code for server
 var qs = require('querystring');
 var app = express();
+var fs = require('fs');
+var queryString=require("query-string");
 
 /* for index & invoice */
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
@@ -75,6 +77,7 @@ app.all('*', function (request, response, next) {
     next();
 });
 
+
 app.post('/process_invoice', function (request, response, next) {
     //to validate data
     //error bag
@@ -88,68 +91,6 @@ app.post('/process_invoice', function (request, response, next) {
     }
 });
 
-
-/* for registration; author: reece nagaoka */
- /* wont work !!!*/
-app.post("./register", function (request, response) {
-    var new_errors = {};
-
-     /* Process a simple register form */
-    /* Make it so capitalization is irrelevant for usernames */
-    var new_username = request.body['username'].toLowerCase();
-
-
-    // Requires usernames to be letters and numbers 
-    if (/^[0-9a-zA-Z]+$/.test(request.body.username)) {
-     }
-    else {
-    errors.push('Letters And Numbers Only for Username')
-     }
-
-    /* Require a unique username */
-    if (typeof user_data[new_username] != 'undefined') {
-        new_errors['username'] = 'Username is already taken.'
-    }
-
-    /* Require a minimum of 4 characters and no more than 10 */
-    if(request.body.password.length < 6) {
-        new_errors['password'] = 'You must enter a minimum of 6 characters.'
-    }
-
-    /* Confirm that both passwords were entered correctly */
-    if(request.body.password !== request.body.repeat_password) {
-        new_errors['repeat_password'] = 'Both passwords must match'
-    }
-
-    /* If new_errors is empty */
-    if (JSON.stringify(new_errors) == '{}') {
-        /* Write data and send to invoice.html */
-        user_data[new_username] = {};
-        user_data[new_username].name = request.body.name;
-        user_data[new_username].password = request.body.password;
-        user_data[new_username].email = request.body.email;
-
-        /* Writes user information into file */
-        fs.writeFileSync(filename, JSON.stringify(user_data));
-
-
-    /* Require a specific email format */
-    if(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(request.body.email) == false) {
-        new_errors['email'] = 'Please enter a valid email address'
-    }
-        /* Add username and email to query */
-        request.query['username'] = request.body.username;
-        request.query['email'] = user_data[new_username].email;
-        response.redirect('./invoice.html?' + qs.stringify(request.query));
-        return;
-    }
-    else {
-        /* Put errors and registration data into query */
-        request.query['reg_errors'] = JSON.stringify(new_errors);
-        request.query['reg_data'] = JSON.stringify(request.body);
-        response.redirect(`./register.html?` + qs.stringify(request.query));
-    }
-});
 
 // handles request for any static files
 app.use(express.static('./public'));
