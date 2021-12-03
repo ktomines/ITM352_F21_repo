@@ -10,8 +10,8 @@
   var quantities = []; // Check that we have quantities submitted
   if (params.has('purchasesubmit')) { // If everything is good, create a loop for every product
     for (i = 0; i < products.length; i++) {
-      if (params.has(`quantity${i}`)) { // Checking if ...
-        a_qty = params.get(`quantity${i}`);
+      if (params.has(`quantities_avaliable${i}`)) { // Checking if ...
+        a_qty = params.get(`quantities_avaliable${i}`);
         quantities[i] = a_qty;
       }
     }

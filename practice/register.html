@@ -1,0 +1,112 @@
+<!-- Author: CodingLab - www.codinglabweb.com & Peter C & Nate M. -->
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <link href="register.css" rel="stylesheet" type="text/css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<script>
+  // Referenced Lab 14 code
+  let params = (new URL(document.location)).searchParams;
+  // Alert the user if there is an error with the information inputted
+  window.onload = function () {
+    if (params.has('errors')) {
+      console.log("invalid");
+      alert('Fix the following errors: \n' + params.get('errors'));
+    }
+  }
+</script>
+
+let params = (new URL(document.location)).searchParams;
+window.onload = function(){
+  if (params.has('errors')) {
+        console.log("invalid");
+        alert('Fix the following errors: \n' + params.get('errors'));
+      }
+    }
+
+</script>
+<body>
+  <div class="container">
+    <div class="title">Register Here!</div>
+    <div class="content">
+      <form action="#">
+        <div class="user-details">
+          <div id="account"
+          <script>
+            <form class="register" method="POST" action="register" name="register">
+          </script>
+        </div>
+
+          <!---Full Name--->
+          <div class="input-box">
+          <span class="details">Full Name</span>
+          <input type="text" name="fullname" id="fullname" placeholder="Enter your name" required title="Minimum: 5 Characters. Maximum: 10 Characters. Numbers and/or Letters Only.">
+          </div>
+
+          <!---Username--->
+          <div class="input-box">
+            <span class="details">Username</span>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required><label>Enter 4-10 characters</label>
+           
+            
+          </div>
+
+          <!---Email--->
+          <div class="input-box">
+            <span class="details">Email</span>
+            <input type="email" placeholder="Enter your email" pattern="[a-z0-9._]+@[a-z0-9]+\.[a-z]{3,}$" required>
+          </div>
+
+          <!---Password--->
+          <div class="input-box">
+            <span class="details">Password</span>
+            <input type="password" placeholder="Enter your password" id="typepass" pattern=".{6,}" required title="Minimum: 5 Characters" <input onclick="Toggle()">
+            <b>Click on textbox to show or hide password</b>
+            <script>
+            //allows password to be shown when clicked on
+              function Toggle() {
+                var temp = document.getElementById("typepass");
+                if (temp.type === "password") {
+                  temp.type = "text";
+                }
+                else {
+                  temp.type = "password";
+                }
+              }
+            </script>
+          </div>
+
+          <!---Confirm Password--->
+          <div class="input-box">
+            <span class="details">Confirm Password</span>
+            <input type="password" placeholder="Confirm your password" id="typepass"  pattern=".{6,}" required title="Minimum: 5 Characters" <input onclick="Toggle()">
+            <b>Click on textbox to show or hide password</b>
+            <script>
+            //allows password to be shown when clicked on
+              function Toggle() {
+                var temp = document.getElementById("typepass");
+                if (temp.type === "password") {
+                  temp.type = "text";
+                }
+                else {
+                  temp.type = "password";
+                }
+              }
+            </script>
+          </div>
+        </div>
+
+        <form action="/register" method="post" name ="register"></form>
+        <!---Submit button--->
+        <input type="button" class="button" value="Register" onclick="window.location.href = 'invoice.html';">    
+        </form>
+    </div>
+  </div>
+
+</body>
+
+</html>

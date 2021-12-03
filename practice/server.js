@@ -6,17 +6,7 @@ var app = express();
 var fs = require('fs');
 var queryString=require("query-string");
 var myParser = require("body-parser");
-var userdatafile = './user_data.json';
-var filedata = 'user_data.json';
-
-
-if (fs.existsSync(filedata)) {
-    var filestats = fs.statSync(filedata); // gets the stats from the file
-    var userdata = JSON.parse(fs.readFileSync(userdatafile,'utf-8'));
-    console.log(`${userdatafile} has ${filestats["size"]} characters`); // outputs the characters of the data file
-} else {
-    console.log(`${userdatafile} does not exist :(`)
-}
+var filename = "./user_data.json";
 
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 
@@ -38,7 +28,7 @@ app.get("/index", function (request, response) {
             str += `
             <section class ="item">
             <h2>${products[i].brand}</h2> 
-            <h3 label id ="quantities${i}"><i>Available: ${products[i].quantities} in stock!</i></h3></label>
+            <h3 label id ="quantity_available${i}"><i>Available: ${products[i].quantity_available} in stock!</i></h3></label>
             <h4>$${products[i].price.toFixed(2)}</h4>
             <img src="./images/${products[i].image}" class="img">
             <label id ="quantity${i}_label">Number of Items: </label>
@@ -125,6 +115,19 @@ app.post('/process_invoice', function (request, response, next) {
 });
 
 
+//Author: Lab14; Kazman
+//checks if login is valid
+if (fs.existsSync(filename)) {
+    data = fs.readFileSync(filename, 'utf-8');
+
+    user_data = JSON.parse(data); //if parser makes imported data readable json
+    console.log("User_data=", user_data);
+
+    fileStats = fs.statSync(filename);
+    console.log("File " + filename + " has " + fileStats.size + " characters");
+} else {
+    console.log("Enter the correct filename bozo!");
+}
 
 //if login is valid, bring them to invoice; from Lab 14 Ex3.js
 //NEED TO FIX; trying to have login button request contents of user.json
@@ -154,12 +157,11 @@ app.post("/login", function (request, response) {
 
 // registration page
 // Registration Page server side starts now
-app.post('/process_register', function(req, res) {
+app.post('/register', function(req, res) {
     // add a new user to the data base
     console.log(req.body);
     // Referenced some code from Lab 14 and friend
     var errors = [];
-
 
     if (/^[A-Za-z]+$/.test(req.body.name)){ // only allow to have letters in the name
     } 
@@ -189,24 +191,7 @@ app.post('/process_register', function(req, res) {
     if (req.body.password != req.body.repeatpassword){ // checks if both passwords match
         errors.push('PASSWORDS DO NOT MATCH!')
     }
-    console.log(req.body);
-// Referenced and modified from Lab14
-    // make form sticky
-    req.query["fullname"] = req.query["fullname"];
-    req.query["username"] = req.query["username"];
-    req.query["email"] = req.query["email"];
-    if (errors.length == 0) {
-        console.log ('NO ERRORS!');
-        var username = req.body["username"];
-        userdata[username] = {};
-        userdata[username]["name"] = req.body["fullname"];
-        userdata[username]["password"] = req.body["password"];
-        userdata[username]["email"] = req.body["email"];
-        data = JSON.stringify(userdata);
-        fs.writeFileSync(filedata, data,"utf-8");
-        res.redirect('./invoice.html?' + qs.stringify(req.query) + qs.stringify(req.body));
-    }
-});
 
+});
 
 app.listen(8080, () => console.log(`listening on port 8080`));
