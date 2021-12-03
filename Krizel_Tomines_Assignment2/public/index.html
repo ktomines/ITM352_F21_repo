@@ -29,7 +29,6 @@ function isNonNegInt(inputstring, returnErrors = false) {
     return returnErrors ? errors : (errors.length == 0);
    
     inputstring = 9;
-    
 // author meagar from stackoverflow; to help deny customers from ordering more than whats avaliable
 switch(true) {
 case inputstring == 9:
@@ -90,7 +89,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Karma", sans-serif}
     <header>
         <h1>Boba Bar</h1>
     </header>
-    <form name ="product_selection_form "action="process_invoice" method="POST"> 
+    <form name ="product_selection_form "action="/process_invoice" method="POST"> 
 
     <div>
 
@@ -115,7 +114,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Karma", sans-serif}
    
     </div>
     <script>//submit button </script>
-    <input type="button" value="purchase" name="purchase_submit"  onclick="window.location.href = 'login.html';">      
+    <input type="submit" value="purchase" name="purchase_submit" >      
     <h2>Your One Stop Boba Shop Fam</h2>
        </form>
 </body>

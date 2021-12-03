@@ -1,3 +1,5 @@
+
+
 //Krizel Tomines & Maggie Mulhall
 //Author: Kazman/Port & WODS & Labs
 var express = require('express'); //code for server
@@ -8,8 +10,9 @@ var queryString=require("query-string");
 var myParser = require("body-parser");
 var userdatafile = './user_data.json';
 var filedata = 'user_data.json';
+var userdata = JSON.parse(fs.readFileSync(userdatafile,'utf-8'));
 
-
+//if user_data.json exists, read the file and out put its stats
 if (fs.existsSync(filedata)) {
     var filestats = fs.statSync(filedata); // gets the stats from the file
     var userdata = JSON.parse(fs.readFileSync(userdatafile,'utf-8'));
@@ -29,46 +32,8 @@ app.get("/index", function (request, response) {
     var contents = fs.readFileSync('./views/index.html', 'utf8'); //reads index file & saves contents in it 
     response.send(eval('`' + body + '`')); // render template string
 
-    //author: nate moylan; 
-    //this function creates a for loop to generate the products for the page
-    function display_products() {
-        str = '';
-        // loop to generate the products
-        for (i = 0; i < products.length; i++) {
-            str += `
-            <section class ="item">
-            <h2>${products[i].brand}</h2> 
-            <h3 label id ="quantities${i}"><i>Available: ${products[i].quantities} in stock!</i></h3></label>
-            <h4>$${products[i].price.toFixed(2)}</h4>
-            <img src="./images/${products[i].image}" class="img">
-            <label id ="quantity${i}_label">Number of Items: </label>
-            <input type="text" placeholder="0" name="quantity${i}" onkeyup="checkQuantityTextbox(this);"> 
-
-            </section>`;
-
-            // makes sure the quantity inputted by the user is validated. 
-            if (typeof req.query['purchase_submit'] != 'undefined') {
-                for (i = 0; i < products.length; i++) {
-                    if (params.has(`quantity${i}`)) {
-                        a_qty = params.get(`quantity${i}`);
-                        // make textboxes sticky in case of invalid data
-                        product_selection_form[`quantity${i}`].value = a_qty;
-                        total_qty += a_qty;
-                        if (!isNonNegInteger(a_qty)) {
-                            has_errors = true; // if invalid quantity
-                            checkQuantityTextbox(product_selection_form[`quantity${i}`]); // shows where the error is
-                        }
-                    }
-                }
-
-                console.log(Date.now() + ': Purchase made from ip ' + req.ip + ' data: ' + JSON.stringify(req.query)); //log purchase quantities
-            }
-            next();
-        }
-
-        return str;
-    }
-});
+    
+}); 
 
 // to validate that an input value = a non negative integer
 // inputstring is the input string; returnErrors indicates how the function returns
@@ -95,18 +60,21 @@ app.all('*', function (request, response, next) {
     next();
 });
 
-
+//decalre global varible to hold requested quanities
+var string_orders ="";
 //brin data from store page to login
 app.post('/process_invoice', function (request, response, next) {
-    //to validate data
-    // error bag
-    var orders = request.body["quantity"];
+    //Validate that all requested quanties are valid
+    var orders = request.body;
+    console.log(orders);
     string_orders= new URLSearchParams(orders);
-    var founderror = false;
+    console.log(string_orders);
+    var founderror=false;
     for (i in orders){
         if (isNonNegInteger(orders['quantity' + i])==false) {
             founderror=true;
         }
+        //if all quanitites are validated, redirect to login page with the quantiites orderd 
         if (founderror==true){
             response.redirect("login.html?"+string_orders);
     }
@@ -116,7 +84,7 @@ app.post('/process_invoice', function (request, response, next) {
 }
     var errors = {};
 
-    //if the data is valid, send them to the invoice, otherwise send them back to index
+    //if the data is valid, send user to the invoice, otherwise send them back to index
     if (Object.keys(errors).length == 0) {
         response.redirect('./invoice.html?' + qs.stringify(request.body)); //move to invoice page if no errors
     } else {
@@ -127,19 +95,21 @@ app.post('/process_invoice', function (request, response, next) {
 
 
 //if login is valid, bring them to invoice; from Lab 14 Ex3.js
-//NEED TO FIX; trying to have login button request contents of user.json
 app.post("/login", function (request, response) {
     // Process login form POST and redirect to logged in page if ok, back to login page if not
     console.log("Got a POST to login");
     POST = request.body;
+    datauser=request.body
 
     user_name = POST["username"];
     user_pass = POST["password"];
     console.log("User name=" + user_name + " password=" + user_pass);
 
-    if (user_data[user_name] != undefined) {
-        if (user_data[user_name].password == user_pass) {
+    //if login data is incorrect, tell them 
+    if (userdata[user_name] != undefined) {
+        if (userdata[user_name].password == user_pass) {
             // redirect to invoice
+            console.log(string_orders);
             response.redirect('./invoice.html?'+ string_orders); 
             return;
         } else {
@@ -153,7 +123,7 @@ app.post("/login", function (request, response) {
 });
 
 // registration page
-// Registration Page server side starts now
+
 app.post('/process_register', function(req, res) {
     // add a new user to the data base
     console.log(req.body);
@@ -204,11 +174,9 @@ app.post('/process_register', function(req, res) {
         userdata[username]["email"] = req.body["email"];
         data = JSON.stringify(userdata);
         fs.writeFileSync(filedata, data,"utf-8");
-        res.redirect('./invoice.html?' + qs.stringify(req.query) + qs.stringify(req.body));
+        res.redirect('./invoice.html?' + string_orders);
     }
 });
-    
-
 
 
 app.listen(8080, () => console.log(`listening on port 8080`));
