@@ -10,6 +10,9 @@ var filename = "./user_data.json";
 
 app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 
+// handles request for any static files
+app.use(express.static('./public'));
+
 /* for index & invoice */
 
 app.get("/index", function (request, response) {
@@ -74,6 +77,7 @@ function isNonNegInteger(inputstring, returnErrors = false) {
 
     return returnErrors ? errors : (errors.length == 0);
 }
+
 // routing
 // to monitor all process requests    
 app.all('*', function (request, response, next) {
@@ -95,6 +99,7 @@ app.post('/process_invoice', function (request, response, next) {
     }
 });
 
+//Author: Lab14; Kazman
 //checks if login is valid
 if (fs.existsSync(filename)) {
     data = fs.readFileSync(filename, 'utf-8');
@@ -113,30 +118,30 @@ user_data[username] = {};
 user_data[username].password = 'newpass';
 user_data[username].email = 'newuser@user.com';
 
-//if login is valid, bring them to invoice
+//if login is valid, bring them to invoice; from Lab 14 Ex3.js
 //NEED TO FIX; trying to have login button request contents of user.json
+
 app.post("/login", function (request, response) {
-    // process a simple register form
-  
+    // Process login form POST and redirect to logged in page if ok, back to login page if not
+    console.log("Got a POST to login");
     POST = request.body;
 
     user_name = POST["username"];
     user_pass = POST["password"];
-    user_email = POST["email"];
-
     console.log("User name=" + user_name + " password=" + user_pass);
 
-    user_data[user_name] = {};
-    user_data[user_name].name = user_name;
-    user_data[user_name].password = user_pass;
-    user_data[user_name].email = user_email;
-
-    data = JSON.stringify(user_data);
-    fs.writeFileSync(filename, data, "utf-8");
-
-    response.redirect("/invoice.html");
+    if (user_data[user_name] != undefined) {
+        if (user_data[user_name].password == user_pass) {
+            // trying to redirect to invoice
+            response.redirect('/invoice'); 
+        } else {
+            // Bad login, redirect; if username & pass don't match
+            response.send("Your login is not correct!");
+        }
+    } else {
+        // not even username
+        response.send("Register or enter again please!");
+    }
 });
 
-// handles request for any static files
-app.use(express.static('./public'));
 app.listen(8080, () => console.log(`listening on port 8080`));
