@@ -1,13 +1,17 @@
-//Krizel Tomines 
+//Krizel Tomines & Maggie Mulhall
 //Author: Kazman/Port & WODS & Labs
 var express = require('express'); //code for server
 var qs = require('querystring');
 var app = express();
 var fs = require('fs');
 var queryString=require("query-string");
+var myParser = require("body-parser");
+var filename = "./user_data.json";
+
+app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
 
 /* for index & invoice */
-app.use(express.urlencoded({ extended: true })); //decode URL encoded data from POST requests
+
 app.get("/index", function (request, response) {
     var contents = fs.readFileSync('./views/index.html', 'utf8'); //reads index file & saves contents in it 
     response.send(eval('`' + body + '`')); // render template string
@@ -91,6 +95,47 @@ app.post('/process_invoice', function (request, response, next) {
     }
 });
 
+//checks if login is valid
+if (fs.existsSync(filename)) {
+    data = fs.readFileSync(filename, 'utf-8');
+
+    user_data = JSON.parse(data); //if parser makes imported data readable json
+    console.log("User_data=", user_data);
+
+    fileStats = fs.statSync(filename);
+    console.log("File " + filename + " has " + fileStats.size + " characters");
+} else {
+    console.log("Enter the correct filename bozo!");
+}
+
+username = 'newuser';
+user_data[username] = {};
+user_data[username].password = 'newpass';
+user_data[username].email = 'newuser@user.com';
+
+//if login is valid, bring them to invoice
+//NEED TO FIX; trying to have login button request contents of user.json
+app.post("/login", function (request, response) {
+    // process a simple register form
+  
+    POST = request.body;
+
+    user_name = POST["username"];
+    user_pass = POST["password"];
+    user_email = POST["email"];
+
+    console.log("User name=" + user_name + " password=" + user_pass);
+
+    user_data[user_name] = {};
+    user_data[user_name].name = user_name;
+    user_data[user_name].password = user_pass;
+    user_data[user_name].email = user_email;
+
+    data = JSON.stringify(user_data);
+    fs.writeFileSync(filename, data, "utf-8");
+
+    response.redirect("/invoice.html");
+});
 
 // handles request for any static files
 app.use(express.static('./public'));
