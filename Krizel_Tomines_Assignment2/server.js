@@ -102,7 +102,7 @@ app.post('/process_invoice', function (request, response, next) {
     // error bag
     var orders = request.body["quantity"];
     string_orders= new URLSearchParams(orders);
-    var founderror=false;
+    var founderror = false;
     for (i in orders){
         if (isNonNegInteger(orders['quantity' + i])==false) {
             founderror=true;
@@ -207,6 +207,8 @@ app.post('/process_register', function(req, res) {
         res.redirect('./invoice.html?' + qs.stringify(req.query) + qs.stringify(req.body));
     }
 });
+    
+
 
 
 app.listen(8080, () => console.log(`listening on port 8080`));
