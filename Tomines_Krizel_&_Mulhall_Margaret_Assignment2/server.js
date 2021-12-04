@@ -66,6 +66,7 @@ var string_orders ="";
 app.post('/process_invoice', function (request, response, next) {
     //Validate that all requested quanties are valid
     var orders = request.body;
+    
     console.log(orders);
     string_orders= new URLSearchParams(orders);
     console.log(string_orders);
@@ -92,25 +93,26 @@ app.post('/process_invoice', function (request, response, next) {
     }
 });
 
-
+var string_user_name = "";
 
 //if login is valid, bring them to invoice; from Lab 14 Ex3.js
 app.post("/login", function (request, response) {
     // Process login form POST and redirect to logged in page if ok, back to login page if not
     console.log("Got a POST to login");
     POST = request.body;
-    datauser=request.body
+    login_info=request.body
 
     user_name = POST["username"];
     user_pass = POST["password"];
+    string_user_name = new URLSearchParams(user_name);
+    login_info += user_name;
     console.log("User name=" + user_name + " password=" + user_pass);
 
-    //if login data is incorrect, tell them 
     if (userdata[user_name] != undefined) {
         if (userdata[user_name].password == user_pass) {
             // redirect to invoice
             console.log(string_orders);
-            response.redirect('./invoice.html?'+ string_orders); 
+            response.redirect('./invoice.html?'+ string_orders + user_name); 
             return;
         } else {
             // Bad login, redirect; if username & pass don't match
