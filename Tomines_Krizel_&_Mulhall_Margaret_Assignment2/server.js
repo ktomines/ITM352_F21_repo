@@ -1,5 +1,4 @@
 
-
 //Krizel Tomines & Maggie Mulhall
 //Author: Kazman/Port & WODS & Labs
 var express = require('express'); //code for server
@@ -8,6 +7,7 @@ var app = express();
 var fs = require('fs');
 var queryString=require("query-string");
 var myParser = require("body-parser");
+const { query } = require('express');
 var userdatafile = './user_data.json';
 var filedata = 'user_data.json';
 var userdata = JSON.parse(fs.readFileSync(userdatafile,'utf-8'));
@@ -75,9 +75,9 @@ app.post('/process_invoice', function (request, response, next) {
         if (isNonNegInteger(orders['quantity' + i])==false) {
             founderror=true;
         }
-        //if all quanitites are validated, redirect to login page with the quantiites orderd 
+        //if all quanitites are validated, redirect to login page with the quantiites ordered 
         if (founderror==true){
-            response.redirect("login.html?"+string_orders);
+            response.redirect("login.html?" + string_orders);
     }
     else {
         response.redirect("index.html");
@@ -112,7 +112,7 @@ app.post("/login", function (request, response) {
         if (userdata[user_name].password == user_pass) {
             // redirect to invoice
             console.log(string_orders);
-            response.redirect('./invoice.html?'+ string_orders + user_name); 
+            response.redirect('./invoice.html?' + string_orders + "user_name"); 
             return;
         } else {
             // Bad login, redirect; if username & pass don't match
