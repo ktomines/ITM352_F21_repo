@@ -7,7 +7,6 @@ var app = express();
 var fs = require('fs');
 var queryString=require("query-string");
 var myParser = require("body-parser");
-const { query } = require('express');
 var userdatafile = './user_data.json';
 var filedata = 'user_data.json';
 var userdata = JSON.parse(fs.readFileSync(userdatafile,'utf-8'));
@@ -66,7 +65,6 @@ var string_orders ="";
 app.post('/process_invoice', function (request, response, next) {
     //Validate that all requested quanties are valid
     var orders = request.body;
-    
     console.log(orders);
     string_orders= new URLSearchParams(orders);
     console.log(string_orders);
@@ -75,9 +73,9 @@ app.post('/process_invoice', function (request, response, next) {
         if (isNonNegInteger(orders['quantity' + i])==false) {
             founderror=true;
         }
-        //if all quanitites are validated, redirect to login page with the quantiites ordered 
+        //if all quanitites are validated, redirect to login page with the quantiites orderd 
         if (founderror==true){
-            response.redirect("login.html?" + string_orders);
+            response.redirect("login.html?"+string_orders);
     }
     else {
         response.redirect("index.html");
@@ -93,26 +91,24 @@ app.post('/process_invoice', function (request, response, next) {
     }
 });
 
-var string_user_name = "";
+
 
 //if login is valid, bring them to invoice; from Lab 14 Ex3.js
 app.post("/login", function (request, response) {
     // Process login form POST and redirect to logged in page if ok, back to login page if not
     console.log("Got a POST to login");
     POST = request.body;
-    login_info=request.body
+    datauser=request.body
 
     user_name = POST["username"];
     user_pass = POST["password"];
-    string_user_name = new URLSearchParams(user_name);
-    login_info += user_name;
     console.log("User name=" + user_name + " password=" + user_pass);
 
     if (userdata[user_name] != undefined) {
         if (userdata[user_name].password == user_pass) {
             // redirect to invoice
             console.log(string_orders);
-            response.redirect('./invoice.html?' + string_orders + "user_name"); 
+            response.redirect('./invoice.html?'+ string_orders); 
             return;
         } else {
             // Bad login, redirect; if username & pass don't match
