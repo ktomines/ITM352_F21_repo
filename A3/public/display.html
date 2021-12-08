@@ -100,28 +100,55 @@
           
     
             <script>
+                   
+// DISPLAY PAGE
+// validates quantities
+// to process purchase request
+function checkQuantityTextbox(theTextbox) {
+  console.log("in checkbox",theTextbox.name);
+  errors = isNonNegInteger(theTextbox.value, true); // setting errors to isNonNegInt
+  if (errors.length == 0) errors = ['You would like:']; 
+  if (theTextbox.value.trim() == '') errors = ['Enter your quantity desired: '];
+  document.getElementById(theTextbox.name + '_label').innerHTML = errors.join('<font color="red">, </font>');
+}     
+
+//check if the number is valid
+function isNonNegInteger(q, returnErrors = false) { //value are integer
+    errors = [];  
+    if (q == "") { q = 0; }
+    if (Number(q) != q) errors.push('Not a number!'); // string is a number
+    if (parseInt(q) < 0) errors.push('Negative value!'); //value is positive
+    if (parseInt(q) != q) errors.push('Not an integer!'); //value is an integer
+    if (parseInt(q) > 9) errors.push('Will make more soon, we are sold out!');
+    return returnErrors ? errors : (errors.length == 0);
+}
+
                 // this for loop displays the products array 
+                // has add to cart button
 
                     for (i=0; i < products.length; i++) {
-                document.write(`<section class="item">
+                                    document.write(`<section class="item">
+   
+                        <form action="add_cart" method="POST">
+
                     <h2>${products[i].brand}</h2>
                     <h3>${products[i].quantity_available} avaliable.</h3>
                     <p>$${products[i].price}</p>
                     <label id="quantity${i}_label"}">Quantity</label>
                         <input type="text" placeholder="0" name="quantity${i}" onkeyup="checkQuantityTextbox(this);"> 
                     <img src=${products[i].image} class="center">
-        
+
+                </form>
+    
+                <form>
+                    <footer>
+                                       <input class="submit" type="submit" value="ADD TO CART!" name="/Purchase_submit"> 
+ </footer></form>
                 </section>`);
             }
                 </script>
         </main>
     </div>
-
-    <footer>
-        <h1>
-            Your Favorite Place To Get "Baked"
-        </h1>
-    </footer>
 
 </body>
 

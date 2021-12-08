@@ -77,7 +77,7 @@ var smoothies =
 var scones =
 [
 {
-    "brand": "Blueberry White Chocolate Chunk ",
+    "brand": "Blueberry ",
     "price": 5.00,
     "image": "./images/blueberrywhite.jpg",
     "quantity_available": 9
@@ -89,7 +89,7 @@ var scones =
     "quantity_available": 9
 },
 {
-    "brand": "Orange Cranberry",
+    "brand": "Orange",
     "price": 5.00,
     "image":  "./images/orangecran.jpg",
     "quantity_available": 9

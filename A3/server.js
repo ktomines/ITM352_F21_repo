@@ -28,6 +28,8 @@ app.all('*',function(request,response,next){
 
 app.use(myParser.urlencoded({ extended: true }));
 
+
+
 //from our Assignment2
 //if user_data.json exists, read the file and out put its stats
 if(fs.existsSync(filename)) {
@@ -175,7 +177,7 @@ app.post('/add_cart',  redirectLogin, function(request,response){ //creating var
     if(cart){ //if cart exists
       
     var foundItemIndex = cart.findIndex((item) => {//look for the index
-        return item.name == formData_name;
+        return item.brand == formData_name;
       });
     //if the index returned in 0 or higher
     if(foundItemIndex >= 0) {
@@ -203,7 +205,7 @@ app.post('/add_cart',  redirectLogin, function(request,response){ //creating var
       }
   }
 }else{
-  //if error, reload page and pass error to front end
+  //if error, reload page and pass error to client
   if(typeof cart != 'undefined'){
         count = request.session.cart.length;
     }
@@ -219,55 +221,58 @@ app.post('/add_cart',  redirectLogin, function(request,response){ //creating var
       // SHOPPING CART //
 // allows user to add 1 quantity in shopping cart
 app.post('/add_one', function(request, response){
-  var ptype = request.body['product_type'];
-  var formData_name = request.body['ProductName'];
-  var formData_quantity = parseInt(request.body['add']);
-  var cart = request.session.cart;
+  var ptype = request.body['product_type']; //declares ptype to get info abt order
+  var formData_name = request.body['ProductName']; //takes name of product & puts in form data name
+  var formData_quantity = parseInt(request.body['add']); //adds 1 quantity to form quantity variable
+  var cart = request.session.cart; // saves new data as cart variable
 
   //find the index
-  var foundItemIndex = cart.findIndex((item) => {
-        return item.name == formData_name;
+  var foundItemIndex = cart.findIndex((item) => {   
+        return item.brand == formData_name;
       });
     console.log(foundItemIndex);
     
     //if the index is 0 or higher
+    //in shopping cart cart when they add 1 more, add to newTotal
     if(foundItemIndex >= 0){
         //increase the quantity by 1
         console.log(cart[foundItemIndex].quantity);
-        var newTotal = cart[foundItemIndex].quantity + formData_quantity;
+        var newTotal = cart[foundItemIndex].quantity + formData_quantity; //new quantities & old quantites = newTotal 
         console.log(newTotal);
         cart[foundItemIndex].quantity = newTotal;
     }
 
-
+ // once extra quantities are added, redirect to shopping cart
 
   return response.redirect("/shoppingcart.html");
 
 });
 
-//reduce quantity by 1 from item
-app.post('/remove_one', function(request, response){
-  var ptype = request.body['product_type'];
-  var formData_name = request.body['ProductName'];
-  var formData_quantity = parseInt(request.body['reduce']);
-  var cart = request.session.cart;
+//allows user to reduce 1 quantity in shopping cart
+app.post('/remove_one', function(request, response){ 
+  var ptype = request.body['product_type'];//declares ptype to get info abt order
+  var formData_name = request.body['ProductName'];//takes name of product & puts in form data name
+  var formData_quantity = parseInt(request.body['reduce']);//removes 1 quantity to form quantity variable
+  var cart = request.session.cart; // saves new data as cart variable
 
   var foundItemIndex = cart.findIndex((item) => {
-        return item.name == formData_name;
+        return item.brand == formData_name;
       });
     //console.log(foundItemIndex);
     
     //if the index is 0 or higher
+    //in shopping cart cart when they reduce 1 more, add to newTotal
+
     if(foundItemIndex >= 0){
         //reduce the quantity by 1
         console.log(cart[foundItemIndex].quantity);
         if(cart[foundItemIndex].quantity > 0){
-          var newTotal = cart[foundItemIndex].quantity - formData_quantity;
+          var newTotal = cart[foundItemIndex].quantity - formData_quantity; //assigns new total as the old total - quantity removed
           console.log(newTotal);
           cart[foundItemIndex].quantity = newTotal;
         }else{
-          //remove the item from cart if its 0 or lower
-          cart.splice(foundItemIndex, 1);
+          cart.splice(foundItemIndex, 1); //if quantity is 0 or below, remove the item from the shopping cart
+
         }
         
     }
@@ -276,20 +281,18 @@ app.post('/remove_one', function(request, response){
 
 });
 
-//remove item from the cart 
+//removes entire item from the shopping cart on shoppingcart page
 app.post('/remove-from-cart', (request, response) =>{
     
-
     var formData_name = request.body["ProductName"];
 
     var cart = request.session.cart;
 
     //find the product index in session.cart
     var foundItemIndex = cart.findIndex((item) => {
-        return item.name == formData_name;
+        return item.brand == formData_name;
 
     })
-    
     
     //if the index is 0 or higher
     if(foundItemIndex >= 0){
@@ -324,11 +327,11 @@ app.post("/login", function (request, response) {
           response.send("Your login is not correct!");
       }
   } else {
-      // not even username
+      // not even a username
       response.send("Register or enter again please!");
   }
 });
-
+// From our assignment 2 server
 //this processes the register form
 app.post("/process_register", function (req, res) {
     qstr = req.body
@@ -372,44 +375,36 @@ app.post("/process_register", function (req, res) {
       console.log('no errors')
 
       username = POST['username']
-
+//not allowing user to login after registeration becuase of encrypted password
       let encrypted_pass = encrypt(req.body.password);
 
-
-      user_data[username] = {}; 
-      user_data[username].name = req.body.fullname;
-      user_data[username].password= encrypted_pass;
-      user_data[username].email = req.body.email;
-      data = JSON.stringify(user_data); 
-      fs.writeFileSync(filename, data, "utf-8");
-      res.redirect('./login.html');
+//save all new user data in user_data.json
+      user_data[username] = {}; //sets username to empty array
+      user_data[username].name = req.body.fullname; // adds name to user data array
+      user_data[username].password= encrypted_pass;// adds encrypted password to user data array
+      user_data[username].email = req.body.email;// adds email to userdata array
+      data = JSON.stringify(user_data); //turns userdata into string and saves it in variable data
+      fs.writeFileSync(filename, data, "utf-8"); // adds stringified data to user_data.json file
+      res.redirect('./login.html'); // redirects user to login after registration
     }
     
-    else{ //if error occurs, direct to register page
+    else{ //if error occurs while registering, make them register again
         console.log(errors)
         req.query.errors = errors.join(';');
         res.redirect('register.html?' + queryString.stringify(req.query));
     }
 });
 
-//check if the number is valid
-function isNonNegInteger(q, returnErrors = false) { //value are integer
-    errors = [];  
-    if (q == "") { q = 0; }
-    if (Number(q) != q) errors.push('Not a number!'); // string is a number
-    if (parseInt(q) < 0) errors.push('Negative value!'); //value is positive
-    if (parseInt(q) != q) errors.push('Not an integer!'); //value is an integer
-    return returnErrors ? errors : (errors.length == 0);
-}
 
-//purchase
+            //CHECKOUT FORM
 app.post('/purchase', redirectDisplay, function(request, response){
     formData = request.body;
     request.session.checkout_info = formData;
     formData_email = request.body.email;
 
     var errors = [];
-
+//validations for checkout form
+//refrenced from O'Reilly.com
     if (/^[A-Za-z]+$/.test(request.body.firstname)) { //full name on name part
     }
     else {
@@ -422,29 +417,29 @@ app.post('/purchase', redirectDisplay, function(request, response){
       errors.push('-Use Only Letters for cardname')
     }
 
-    if(/^[0-9]+$/.test(request.body.cardnumber)){
+    if(/^[0-9]+$/.test(request.body.cardnumber)){ //only numbers for credit card info
 
     }else{
       errors.push('-invalid format for credit card numbers')
     }
 
-    if(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/.test(request.body.expyear)){
+    if(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/.test(request.body.expyear)){ //validates expiration data format
 
     }else{
       errors.push('-invalid format for credit card exp date ')
     }
 
-    if(/^[0-9]+$/.test(request.body.cvv)){
+    if(/^[0-9]+$/.test(request.body.cvv)){ //only numbers for cvv
 
     }else{
       errors.push('-invalid format for credit card cvv numbers')
     }
 
-    //check if the email is in proper format.
+    //validates that email is in proper format
     if (/^[^\s@]+@[^\s@]+$/.test(request.body.email) == false){
         errors.push("- The email address you entered is not in valid format.");
     }
-
+//dont allow users to checkout if shoppingcart is empty
     if(typeof request.session.cart == 'undefined' || request.session.cart.length == 0){
       errors.push("- The shopping cart is empty");
     }

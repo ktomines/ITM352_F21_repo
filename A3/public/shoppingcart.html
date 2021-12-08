@@ -25,18 +25,18 @@ loadJSON('get_cart', function (response) {
     subtotal += extended_price;
     document.write(`
       <tr>
-          <td width="43%"td width="43%">${obj[i].name}</td>
+          <td width="43%"td width="43%">${obj[i].brand}</td>
           
           <td align="center" width="11%">
           <form action="/add_one" method="POST">
-          <input type="hidden" name="ProductName" value="${obj[i].name}">
+          <input type="hidden" name="ProductName" value="${obj[i].brand}">
           <input type="hidden" value="1" name="add">
           <input type='submit' value="+">
           </form>
           <input type="text" value="${obj[i].quantity}" name="quantity">
           
           <form action="/remove_one" method="POST">
-          <input type="hidden" name="ProductName" value="${obj[i].name}">
+          <input type="hidden" name="ProductName" value="${obj[i].brand}">
           <input type="hidden" value="1" name="reduce">
           <input type='submit' value="-">
           </form>
@@ -45,7 +45,7 @@ loadJSON('get_cart', function (response) {
           <td align="center" width="13%">\$${parseInt(obj[i].price)}</td>
           <td width="13%">\$${parseInt(extended_price)}
           <form action="/remove-from-cart" method="POST">                
-          <input type="hidden" name="ProductName" value="${obj[i].name}">
+          <input type="hidden" name="ProductName" value="${obj[i].brand}">
           <input type="submit" value="remove ">  
           </td>
           </form>
