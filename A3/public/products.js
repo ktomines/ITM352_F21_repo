@@ -1,15 +1,5 @@
 //Krizel Tomines & Margaret Mulhall; idea from Chloe Cheng
 //create an object of all product types
-
-var allProducts = {
-    "boba": boba,
-    "smoothies": smoothies,
-    "scones": scones,
-    "icecream": icecream
-}
-if (typeof module != 'undefined') {
-    module.exports.allProducts = allProducts;   // export the products 
-  }
  // an array of the products we would like to sell  
 var products =
 [
@@ -45,21 +35,21 @@ var boba =
 {
     "brand": "Rabbit Signature",
     "price": 5.00,
-    "image": "./images/rbtsig.jpeg",
+    "image": "./images/rbtsig.jpg",
     "quantity_available": 9
 },
 
 {
     "brand": "Tiramisu Milk Tea",
     "price": 5.00,
-    "image":  "./images/tiramisu.jpeg",
+    "image":  "./images/tiramisu.jpg",
     "quantity_available": 9
 },
 
 {
     "brand": "Queen of Hearts Mojito",
     "price": 5.00,
-    "image":  "./images/mojito.jpeg",
+    "image":  "./images/mojito.jpg",
     "quantity_available": 9
 }
 ];
@@ -115,13 +105,22 @@ var icecream =
 {
     "brand": "Strawberry",
     "price": 5.00,
-    "image": "./images/strawberry.jpeg",
+    "image": "./images/strawberry.jpg",
     "quantity_available": 9
 },
 {
     "brand": "Blueberry",
     "price": 5.00,
-    "image":  "./images/blueberry.jpeg",
+    "image":  "./images/blueberry.jpg",
     "quantity_available": 9
 }]
 
+var allProducts = {
+    "boba": boba,
+    "smoothies": smoothies,
+    "scones": scones,
+    "icecream": icecream
+}
+if (typeof module != 'undefined') {
+    module.exports.allProducts = allProducts;   // export the products 
+  }

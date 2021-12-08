@@ -1,3 +1,4 @@
+// Krizel Tomines & Margaret Mulhall
 // Chloe and Caixin's server.js
 // Some parts are borrowed and modified by Assignement 1, Assignment 2, Lab 14, and Professor Port's sceencast.
 var data = require('./public/products.js');  //loads products.js
