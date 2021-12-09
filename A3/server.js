@@ -1,521 +1,288 @@
-// Krizel Tomines & Margaret Mulhall
-//Based off Kazman's Labs, previous Assignments (1&2)
-var data = require('./public/products.js');  //loads products.js
-var allProducts=data.allProducts; // declare variable 
-const queryString = require('qs'); 
-var express = require('express');  // load in express mode 
+// Author: Krizel T and Maggie M //
+// Date: 12/08/2021 //
+// This is our server // 
+// Borrowed and modified code from our Assignmnet 2, Lab 13, 14, 15 + Alyssa Mencel Assignment 2 and Noah Kim
+var products = require('./products.json'); // set variable of products from product data to products
+var express = require('express');
 var app = express();
-var myParser = require("body-parser");   //get access to POST and GET data 
-var filename = 'user_data.json'; // set vraible 
-var fs = require('fs');
-const{request} = require('express'); // to use express node 
-var session = require('express-session'); 
-var nodemailer = require('nodemailer'); // enable to sent emial 
-const { type } = require('os');
-const shift = 4; //shift for encyption get helped from stackoverlow
-
-//initialize session, from lab 15
-app.use(session({secret: "MySecretKey", resave: true, saveUninitialized: true}));
-
+var myParser = require("body-parser");
 app.use(myParser.urlencoded({ extended: true }));
-app.use(express.static('./public'));
+app.use(myParser.json());
+var qs = require('qs');
+var fs = require('fs'); // Built in module, load in fs package to use
+var session = require('express-session');
+app.use(session({ secret: "ITM352 rockz!" })); // Start sessions
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+const nodemailer = require("nodemailer");
+const url = require('url');
+const { count } = require('console');
 
-// acts as universal app.get 
-app.all('*',function(request,response,next){
-    console.log(request.method + 'to' + request.path);
+// ------ Read User Data File ----- //
+var user_data_file = './user_data.json'; // Load in user data
+if (fs.existsSync(user_data_file)) { // Check to see if file exists
+    var file_stats = fs.statSync(user_data_file);
+    var user_data = JSON.parse(fs.readFileSync(user_data_file, 'utf-8')); // return string, parse into object, set object value to user_data
+}
+else {
+    console.log(`${user_data_file} does not exist!`);
+}
+// ------ Read User Data File ----- //
+
+app.all('*', function (request, response, next) {
+    if (typeof request.session.cart == "undefined") {
+        request.session.cart = {}; // initialize cart
+    }
     next();
 });
 
-app.use(myParser.urlencoded({ extended: true }));
-
-
-
-//from our Assignment2
-//if user_data.json exists, read the file and out put its stats
-if(fs.existsSync(filename)) {
-    var file_stats =fs.statSync(filename);// gets the stats from the file
-    console.log(filename + 'has ' + file_stats.size + ' characters!');
-    data = fs.readFileSync(filename,'utf-8'); //read in the data
-    user_data = JSON.parse(data);
-} else {
-    console.log(filename + ' does not exist!'); // outputs the characters of the data file in the console
-}
-
-//security
-//check if logged in with a username. yes: move on no: redirect them to the login
-const redirectLogin = (request, response, next) => { 
-  if(!request.session.userName){ // if no username, then send to login page to get one
-      response.redirect('/login.html') // sendung them to the login page
-  }else{ // move on to next destination
-      next()
-  }
-}
-//encrypts the password
-function encrypt(password){
-  var encrypted = []; //sets variable
-  var encrypted_result = ""; //sets variable to empty string
-  
-  //encrypt the password Referece: Stack overflow
-  for (var i = 0; i < password.length; i++){
-    encrypted.push(password.charCodeAt(i)+shift);
-    encrypted_result += String.fromCharCode(encrypted[i]);
-  }
-  return encrypted_result;
- }
- 
-
-//personalization
-//check if logged in, if not redirect to destination, else to display
-const redirectHome = (request, response, next) => { // if theres a username send them to the display 
-  if(request.session.userName){
-    response.redirect('/display.html?' + 'fullname=' + request.session.userName.name) // sends username to display page  
-  }else{
-    next()
-  }
-}
-
-//after login, if nothing in cart then go to display.html
-const redirectDisplay = (request, response , next) => { // 
-  if(!request.session.cart){ //checks session in cart 
-    return response.redirect('/display.html'); // if nothing in cart send to display page
-  }else{
-    next()
-  }
-}
-        //  NAVIGATION BAR //
-//adapted by Chloe & Caixin
-
-//go to checkout
-app.get('/checkout', function(request, response){
-  if(typeof request.session.cart == 'undefined' || request.session.cart.length == 0){
-    response.redirect('/shoppingcart.html?error=cart is empty');
-  }
-  response.redirect('/checkout.html');
-  
+// ------ Load In Product Data From Json ----- //
+app.post("/get_products_data", function (request, response, next) {
+    response.json(products);
 });
-//takes user to registration 
-app.get('/to-register', redirectHome, function(request, response) {
-  response.redirect('/register.html');
-});
-//takes user to index page
-app.get('/', redirectHome, function(request, response) {
-  return response.redirect('/index.html');
-});
-//takes user to display.html
-app.get('/to-display', redirectHome, function(request, response){
-  response.redirect('/products_display.html?');
-});
-//t;akes user to login
-app.get('/to-login', redirectHome, function(request, response) {
-  response.redirect('/login.html');
-});
-//takes user to shopping cart
-app.get('/to-shoppingcart', redirectLogin, function(request, response) {
-  response.redirect('/shoppingcart.html');
-});
+// ------ Load In Product Data ----- //
 
-
-
-// after checkout
-//after email is sent, clear contents in the cart and then redirect to products_display.html 
-app.get('/to-display-clear', function(request,response){
-  request.session.cart = []; //clears the cart
-  console.log(request.session.cart);
-  return response.redirect('/to-display'); //sends user back to display when session is cleared
-});
-
-
-// user logs out of account
-app.get('/log-out', redirectLogin, (request, response) => {
-  request.session.destroy(); //destroys the session
-  response.redirect('/products_display.html?' + "logout = You are now logged out.");  //send user back to products display page
-});
-
-//referenced from lab 15
-//saves cart in session
-app.post("/get_cart", function (request, response) {
-  response.json(request.session.cart);
-});
-
-//referenced from lab 15
-//saves username in session 
-//personalization
-app.post("/get_user", function (request, response){
-  response.json(request.session.userName);
-});
-
-//referenced from lab 15
-//saves user's checkout information in session 
-app.post("/get_checkout_info", function (request, response){
-  response.json(request.session.checkout_info);
-});
-
-//sends shopping cart cookie to display.html
-//allows user to see shopping cart quantities in navigation bar
-app.post('/add_cart',  redirectLogin, function(request,response){ //creating variables when adding to cart to save attributes of ordered products
-  console.log(request.body); // logging whats in cart
-  var count; //declaring empty variable to later be filled 
-  var ptype = request.body['product_type']; //info saved in shopping cart
-  var formData_name = request.body['ProductName']; //info saved in shopping cart
-  var formData_quantity = parseInt(request.body['quantity']); //info saved in shopping cart
-  var formData_price = parseInt(request.body['price']); //info saved in shopping cart
-
-  // stores shopping cart data in an array
-  formData = {ptype: ptype, name: formData_name, price: formData_price, quantity: formData_quantity};
-
-  var cart = request.session.cart; //whats displayed in nav bar
-
-  if(typeof cart == 'undefined'){ //if theres nothing in cart, display zero in nav bar
-    count = 0;
-  }
-
-
-  //adapted by Chloe & Caixin
-  //check if the quantity entered is valid
-  if (isNonNegInteger(formData_quantity)){
-    
-    if(cart){ //if cart exists
-      
-    var foundItemIndex = cart.findIndex((item) => {//look for the index
-        return item.brand == formData_name;
-      });
-    //if the index returned in 0 or higher
-    if(foundItemIndex >= 0) {
-                // Aggregate cart item
-                var totalQuantity = cart[foundItemIndex].quantity + formData.quantity;
-                cart[foundItemIndex].quantity = totalQuantity;
-                if(typeof cart != 'undefined'){
-                count = request.session.cart.length;
-              }
-
-            } else { 
-              //if return -1, add item to cart
-              cart.push(formData);
-              if(typeof cart != 'undefined'){
-                count = request.session.cart.length;
-              }
-              
-            }
-
-  }else{
-    //if cart does not exists, initialize cart and add the item to cart
-    request.session.cart = [formData];
-    if(typeof cart != 'undefined'){
-        count = request.session.cart.length;
-      }
-  }
-}else{
-  //if error, reload page and pass error to client
-  if(typeof cart != 'undefined'){
-        count = request.session.cart.length;
-    }
-  response.redirect(`display.html?productType=${ptype}&fullname=${request.session.userName.name}&count=${count}&errors=${errors}`);
-}
-  
-
-  //if no error, reload page
-  response.redirect(`display.html?productType=${ptype}&fullname=${request.session.userName.name}&count=${count}`);
-});
-
-
-      // SHOPPING CART //
-// allows user to add 1 quantity in shopping cart
-app.post('/add_one', function(request, response){
-  var ptype = request.body['product_type']; //declares ptype to get info abt order
-  var formData_name = request.body['ProductName']; //takes name of product & puts in form data name
-  var formData_quantity = parseInt(request.body['add']); //adds 1 quantity to form quantity variable
-  var cart = request.session.cart; // saves new data as cart variable
-
-  //find the index
-  var foundItemIndex = cart.findIndex((item) => {   
-        return item.brand == formData_name;
-      });
-    console.log(foundItemIndex);
-    
-    //if the index is 0 or higher
-    //in shopping cart cart when they add 1 more, add to newTotal
-    if(foundItemIndex >= 0){
-        //increase the quantity by 1
-        console.log(cart[foundItemIndex].quantity);
-        var newTotal = cart[foundItemIndex].quantity + formData_quantity; //new quantities & old quantites = newTotal 
-        console.log(newTotal);
-        cart[foundItemIndex].quantity = newTotal;
-    }
-
- // once extra quantities are added, redirect to shopping cart
-
-  return response.redirect("/shoppingcart.html");
-
-});
-
-//allows user to reduce 1 quantity in shopping cart
-app.post('/remove_one', function(request, response){ 
-  var ptype = request.body['product_type'];//declares ptype to get info abt order
-  var formData_name = request.body['ProductName'];//takes name of product & puts in form data name
-  var formData_quantity = parseInt(request.body['reduce']);//removes 1 quantity to form quantity variable
-  var cart = request.session.cart; // saves new data as cart variable
-
-  var foundItemIndex = cart.findIndex((item) => {
-        return item.brand == formData_name;
-      });
-    //console.log(foundItemIndex);
-    
-    //if the index is 0 or higher
-    //in shopping cart cart when they reduce 1 more, add to newTotal
-
-    if(foundItemIndex >= 0){
-        //reduce the quantity by 1
-        console.log(cart[foundItemIndex].quantity);
-        if(cart[foundItemIndex].quantity > 0){
-          var newTotal = cart[foundItemIndex].quantity - formData_quantity; //assigns new total as the old total - quantity removed
-          console.log(newTotal);
-          cart[foundItemIndex].quantity = newTotal;
-        }else{
-          cart.splice(foundItemIndex, 1); //if quantity is 0 or below, remove the item from the shopping cart
-
+// ------ Process Login Form ----- //
+// Followed Professor Port's Screencast + Borrowed and modified code from Alyssa Mencel assignment 2 code https://github.com/amencel/ITM352_F20_repo/tree/master/mencel_alyssa_assignment2
+// Got help from Professor Port during office hours
+app.post('/process_login', function (request, response, next) {
+    delete request.query.username_error; // Deletes error from query after fixed
+    delete request.query.password_error; // Deletes error from query after fixed
+    username = request.body.username.toLowerCase(); // Username as all lower case
+    if (typeof user_data[username] != 'undefined') { // Check if username entered exists in user data
+        if (user_data[username].password == request.body.psw) { // Check if password entered matches password in user data
+            request.query.name = user_data[username].name;
+            request.query.email = user_data[username].email;
+            response_string = `<script>
+            alert('${user_data[username].name} Login Successful!');
+            location.href = "${'./invoice.html?' + qs.stringify(request.query)}";
+            </script>`;
+            var user_info = {"username": username, "name": user_data[username].name, "email": user_data[username].email};
+            response.cookie('user_info', JSON.stringify(user_info), { maxAge: 30 * 60 * 1000 });
+            response.send(response_string); // If no errors found, redirect to invoice with query string of username information and products
+            return;
+        } else { // If password is not entered correctly, send error alert
+            request.query.username = username;
+            request.query.name = user_data[username].name;
+            request.query.password_error = 'Invalid Password!';
         }
-        
+    } else { // If username entered is not found in user data, send error alert
+        request.query.username = username;
+        request.query.username_error = 'Invalid Username!';
     }
-
-  return response.redirect("/shoppingcart.html");
-
+    response.redirect('./login.html?' + qs.stringify(request.query)); // If there are errors, redirect to same page
 });
+// ------ End Process Login Form ----- //
 
-//removes entire item from the shopping cart on shoppingcart page
-app.post('/remove-from-cart', (request, response) =>{
-    
-    var formData_name = request.body["ProductName"];
 
-    var cart = request.session.cart;
-
-    //find the product index in session.cart
-    var foundItemIndex = cart.findIndex((item) => {
-        return item.brand == formData_name;
-
-    })
-    
-    //if the index is 0 or higher
-    if(foundItemIndex >= 0){
-        //remove the index
-        cart.splice(foundItemIndex, 1);
-    }
-
-    return response.redirect('/shoppingcart.html');
-
-}); 
-
-//this processes the login form Reference: lab 14
-app.post("/login", function (request, response) {
-  // Process login form POST and redirect to logged in page if ok, back to login page if not
-  console.log("Got a POST to login");
-  POST = request.body;
-  datauser=request.body
-
-  user_name = POST["username"];
-  user_pass = POST["password"];
-  cookie_name = user_name;
-
-  console.log("User name=" + cookie_name + " password=" + user_pass);
-
-  if (user_data[user_name] != undefined) {
-      if (user_data[user_name].password == user_pass) { //checks if inputted password is the saved one
-          // redirect to shopping cart
-          response.redirect('./shoppingcart.html?'); 
-          return;
-      } else {
-          // Bad login, redirect; if username & pass don't match
-          response.send("Your login is not correct!");
-      }
-  } else {
-      // not even a username
-      response.send("Register or enter again please!");
-  }
-});
-// From our assignment 2 server
-//this processes the register form
-app.post("/process_register", function (req, res) {
-    qstr = req.body
-    console.log(qstr);
+// ------ Process Registration form ----- //
+app.post('/process_register', function (request, response, next) {
     var errors = [];
 
-    if (/^[A-Za-z]+$/.test(req.body.name)) { //full name on name part
-    }
-    else {
-      errors.push('ONLY LETTERS')
-    }
-
-    if (req.body.name== "") { // validate name
-        errors.push('INVALID FULL NAME');
+    // -------------- Full name validation -------------- //
+    // Full name only allow letters
+    if (/^[A-Za-z]+ [A-Za-z]+$/.test(request.body.fullname) == false) {
+        errors.push('Only letter characters allowed for Full Name')
     }
 
-    if (req.body.fullname.length > 25 && req.body.fullname.length < 0) { // length of the full name is between 0 and 25
-        errors.push ('NAME TOO LONG')
+    // Full name maximum character length is 30
+    if ((request.body.fullname.length > 30 || request.body.fullname.length < 1)) {
+        errors.push('Full Name must contain Maximum 30 Characters')
     }
-  
-    var reguser = req.body.username.toLowerCase(); // checks the new username and makes it lowercase
-    if (typeof user_data[reguser] != 'undefined') {
-      errors.push('USERNAME TAKEN')
-    }
-    
-    if (/^[0-9a-zA-Z]+$/.test(req.body.username)) { // username is in number and letters
-    }
-    else {
-      errors.push('ONLY LETTERS AND NUMBERS FOR USERNAME!')
-    }
-    
-    if(req.body.password.length < 6) { // password needs to be less than 6 characters
-        errors.push('PASSWORD IS TOO SHORT!')
-    }
-    if (req.body.password != req.body.repeatpassword){ // checks if both passwords match
-        errors.push('PASSWORDS DO NOT MATCH!')
-    }
-   
-    if (errors.length == 0) { // Save new user's register information if no error
-      POST = req.body
-      console.log('no errors')
 
-      username = POST['username']
-//not allowing user to login after registeration becuase of encrypted password
-      let encrypted_pass = encrypt(req.body.password);
+    // -------------- Username validation -------------- //
+    // Username all lowercase (case insensitive)
+    username = request.body.username.toLowerCase();
 
-//save all new user data in user_data.json
-      user_data[username] = {}; //sets username to empty array
-      user_data[username].name = req.body.fullname; // adds name to user data array
-      user_data[username].password= encrypted_pass;// adds encrypted password to user data array
-      user_data[username].email = req.body.email;// adds email to userdata array
-      data = JSON.stringify(user_data); //turns userdata into string and saves it in variable data
-      fs.writeFileSync(filename, data, "utf-8"); // adds stringified data to user_data.json file
-      res.redirect('./login.html'); // redirects user to login after registration
+    // Check if username is in user data. If so, push username taken error
+    if (typeof user_data[username] != 'undefined') {
+        errors.push('Username taken');
     }
-    
-    else{ //if error occurs while registering, make them register again
-        console.log(errors)
-        req.query.errors = errors.join(';');
-        res.redirect('register.html?' + queryString.stringify(req.query));
+    // Username only allow letters and numbers
+    if (/^[0-9a-zA-Z]+$/.test(request.body.username) == false) {
+        errors.push('Only Letters And Numbers Allowed for Username');
+    }
+    // Username minimum character length is 4 maximum character length is 10
+    if ((request.body.username.length > 10 || request.body.username.length < 4)) {
+        errors.push('Username must contain at least 4 characters and a maximum of 10 characters')
+    }
+
+    // -------------- Email validation -------------- //
+    // Email only allows certain character for x@y.z
+    if (/[A-Za-z0-9._]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(request.body.email) == false) {
+        errors.push('Must enter a valid email (username@mailserver.domain).');
+    }
+
+    // -------------- Password validation -------------- //
+    // Password minumum 6 characters // 
+    if (request.body.password.length < 6) {
+        errors.push('Password Minimum 6 Characters')
+    }
+    // -------------- Repeat Password validation -------------- //
+    // Check if password matches repeat password
+    if (request.body.password !== request.body.repeat_password) {
+        errors.push('Passwords Do Not Match')
+    }
+
+    // Borrowed some code from Lab 14 // 
+    // If there are no errors, save info to user data
+    if (errors.length == 0) {
+        POST = request.body
+        var username = POST['username']
+        user_data[username] = {}; // Register it as user's information
+        user_data[username].name = request.body.fullname; // POST user's name
+        user_data[username].password = request.body.password; // POST user's password
+        user_data[username].email = request.body.email; // POST user's email
+        data = JSON.stringify(user_data);
+        fs.writeFileSync(user_data_file, data, "utf-8"); // Add new user to user data json file
+        request.query.name = user_data[username].name;
+        request.query.email = user_data[username].email;
+        response_string = `<script>alert('${user_data[username].name} Registration Successful!');
+        location.href = "${'./invoice.html?' + qs.stringify(request.query)}";
+        </script>`;
+        var user_info = {"username": username, "name": user_data[username].name, "email": user_data[username].email};
+        response.cookie('user_info', JSON.stringify(user_info), { maxAge: 30 * 60 * 1000 });
+        response.send(response_string);
+        // If no errors, send window alert success
+    }
+    // If there are errors redirect to registration page & keep info in query string
+    if (errors.length > 0) {
+        request.query.fullname = request.body.fullname;
+        request.query.username = request.body.username;
+        request.query.email = request.body.email;
+        // Add errors to query string
+        request.query.errors = errors.join(';');
+        response.redirect('register.html?' + qs.stringify(request.query));
     }
 });
+// ------ End Process registration form ----- //
 
-
-            //CHECKOUT FORM
-app.post('/purchase', redirectDisplay, function(request, response){
-    formData = request.body;
-    request.session.checkout_info = formData;
-    formData_email = request.body.email;
-
-    var errors = [];
-//validations for checkout form
-//refrenced from O'Reilly.com
-    if (/^[A-Za-z]+$/.test(request.body.firstname)) { //full name on name part
+// ------ Get cart qty ----- //
+app.post('/cart_qty', function (request, response) {
+    var total = 0;
+    for (pkey in request.session.cart) {
+        total += request.session.cart[pkey].reduce((a, b) => a + b, 0);
     }
-    else {
-      errors.push('-Use Only Letters for Full Name')
+    response.json({"qty": total});
+});
+// ------ Get cart qty ----- //
+
+//--make products.json data java script---//
+var products_data;
+var products_data_file = './products.json';
+if (fs.existsSync(products_data_file)) {
+var products_data= JSON.parse(fs.readFileSync(products_data_file, 'utf-8'));
+};
+
+var a_qty;
+for ( i in products_data){
+    a_qty = products_data[i].quantity_available;
+};
+// ------ Process order from products_display ----- //
+// Got help from Professor Port during office hours
+app.post('/add_to_cart', function (request, response) {
+    let POST = request.body; // create variable for the data entered into products_display
+    var qty = POST["prod_qty"];
+    var ptype = POST["prod_type"];
+    var pindex = POST["prod_index"];
+    //if the entered quantity passes non negative integer validation and is not 0, and theres enough in stock, add to cart. If no, tell user Invalid
+    if (isNonNegInt(qty) && qty!=0) {
+        // Add qty data to cart session
+        if (typeof request.session.cart[ptype] == "undefined") {
+            request.session.cart[ptype] = [];
+        }
+        request.session.cart[ptype][pindex] = parseInt(qty);
+        response.json({ "status": "Successfully Added to Cart, Please refresh browser to display number of items in cart." });
+    } if(qty > a_qty){
+        response.json({ "status": "Not Enough In Stock, Not added to cart" });
+    } else{
+        response.json({ "status": "Invalid quantity, Not added to cart. Please ensure you are ordering at least one item and not more than what is in stock." });
     }
+});
+// ------ End Process order from products_display ----- //
 
-    if (/^[A-Za-z]+$/.test(request.body.cardname)) { //full name on name part
+// ------ Get info from session (shopping cart data) ----- //
+app.post('/get_cart', function (request, response) {
+    response.json(request.session.cart);
+});
+// ------ Get info from session (shopping cart data) ----- //
+
+// ------ Update session info/shopping cart with new quantities ----- //
+app.post("/update_cart", function (request,response) {
+    // replace cart in session with post
+    // check if updated quantities are valid
+    let haserrors = false;
+    for (let ptype in request.body.quantities) {
+        for (let i in request.body.quantities[ptype]) {
+            qty = request.body.quantities[ptype][i];
+            haserrors = !isNonNegInt(qty) || haserrors; // Flag -> once haserrors true, always true
+        };
+    };
+    if (haserrors == true) { // if there are errors, send error msg
+        msg = "Invalid quantities. Cart not updated";
+    } else { // if there are no errors, update cart
+        msg = "Cart successfully updated!";
+        request.session.cart = request.body.quantities;
     }
-    else {
-      errors.push('-Use Only Letters for cardname')
-    }
+    const ref_URL = new URL(request.get('Referrer'));
+    ref_URL.searchParams.set("msg", msg); // get qs and add to qs
+    response.redirect(ref_URL.toString());
+});
+// ------ End update session info/shopping cart with new quantities ----- //
 
-    if(/^[0-9]+$/.test(request.body.cardnumber)){ //only numbers for credit card info
+// ------ User Logout ----- //
+app.get("/logout" , function (request, response) {
+    var user_info = JSON.parse(request.cookies["user_info"]);
+    var username = user_info["username"];
+    logout_msg = `<script>alert('${user_info.name} has successfully logged out!'); location.href="./index.html";</script>`;
+    response.clearCookie('user_info');
+    response.send(logout_msg);
+});
+// ------ User Logout ----- //
 
-    }else{
-      errors.push('-invalid format for credit card numbers')
-    }
-
-    if(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/.test(request.body.expyear)){ //validates expiration data format
-
-    }else{
-      errors.push('-invalid format for credit card exp date ')
-    }
-
-    if(/^[0-9]+$/.test(request.body.cvv)){ //only numbers for cvv
-
-    }else{
-      errors.push('-invalid format for credit card cvv numbers')
-    }
-
-    //validates that email is in proper format
-    if (/^[^\s@]+@[^\s@]+$/.test(request.body.email) == false){
-        errors.push("- The email address you entered is not in valid format.");
-    }
-//dont allow users to checkout if shoppingcart is empty
-    if(typeof request.session.cart == 'undefined' || request.session.cart.length == 0){
-      errors.push("- The shopping cart is empty");
-    }
-
-  
-
-//nodemailer referenced assignment 3 code examples
-//Due to security concerns, 
-//new gmail security update requrie user to lower their security protection inorder to send email via nodemailer,
-//furthermore, it requires username and password authentications hardcoded
-//thus, I have created a new temporary email for this use to prevent login credential leaks.
-if(errors.length === 0){
-  var invoice_str = `Thank you for your order!<table border><th>Item</th><th>Quantity</th><th>Price</th>`;
-   var cart = request.session.cart;
-   var subtotal = 0;
-
-   for (var i = 0; i < cart.length; i++){
-    extended_price = cart[i].price * cart[i].quantity;
-    subtotal += extended_price;
-    //console.log(cart[i]);
-    invoice_str += `<tr><td style="text-align: center;">${cart[i].name}</td><td style="text-align: center;">${cart[i].quantity}</td><td>${cart[i].price * cart[i].quantity}</td><tr>`;
-   }
-     var tax_rate = 0.0471;
-     var tax = tax_rate*subtotal;
-
-     //compute shipping
-     if(subtotal <=49) {
-       shipping =0;
-     }
-    else if(subtotal <=200){
-      shipping = 15;
-    }
-    else{
-      shipping = 0.05*subtotal; // 5% of subtotal
-    }
-     //compute grant total
-    var total = subtotal + tax + shipping;
-   invoice_str += `<tr><td>total</td><td style="text-align: center;">$${total.toFixed(2)}</td><tr>`;
-   invoice_str += '</table>';
-
+// ------ Complete purchase -> email invoice ----- //
+app.post('/completePurchase', function (request, response) {
+    var invoice = request.body;
+    var user_info = JSON.parse(request.cookies["user_info"]);
+    var the_email = user_info["email"];
     var transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: 'itm352testing@gmail.com',
-      pass: 'Admin123@'
-    }
-  });
-    //construct the email details
-  var mailOptions = {
-    from: 'itm352testing@gmail.com',
-    to: formData_email,
-    subject: 'your stationary',
-    html: invoice_str
-  };
-
-  //send the email
-  transporter.sendMail(mailOptions, function(error, info){
-    //if error;
-    if (error) {
-      ///redirect to this
-      return response.redirect('/invoice.html?email_error=unable to send invoice to email');
-    } else {
-      //if not, redirect to this
-      return response.redirect('/invoice.html');
-    }
-
-   });
-}else if (errors.length > 0){
-  request.query.errors = errors.join("<br />");
-        response.redirect('checkout.html?' + queryString.stringify(request.query));
-}
-   
-
+        host: "mail.hawaii.edu",
+        port: 25,
+        secure: false, // use TLS
+        tls: {
+            // do not fail on invalid certs
+            rejectUnauthorized: false
+        }
+    });
+    var mailOptions = {
+        from: 'mgmulhall@hawaii.edu',
+        to: the_email,
+        subject: 'Thanks For Purchasing from Krizel and Maggie Boba!',
+        html: invoice.invoicehtml
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            status_str = 'There was an error and your invoice could not be emailed :(';
+        } else {
+            status_str = `Your invoice was mailed to ${the_email}`;
+        }
+        response.json({ "status": status_str });
+    });
+    request.session.destroy();
 });
+// ------ Complete purchase -> email invoice ----- //
 
+// Function to check if value isNonNegInt
+// Borrowed function from Assignment 1
+function isNonNegInt(q, return_errors = false) { // Checks if the values input are a positive integer
+    errors = []; // Initially assumes there are no errors
+    if (q == '' || q == null) q = 0; // If the input is "blank" or null, set the value to 0 
+    if (Number(q) != q) errors.push('<font color="red">Not a number!</font>'); // Check if string is a number value. If not, send error with reason.
+    else if (q < 0) errors.push('<font color="red">Negative value!</font>'); // Check if string is non-negative. If not, send error with reason.
+    else if (parseInt(q) != q) errors.push('<font color="red">Not an integer</font>'); // Check that it is an integer. If not, send error with reason.
+    return return_errors ? errors : (errors.length == 0);
+}
 
-//server side
-app.use(express.static('./public')); 
-app.listen(8080, () => console.log(`listening on port 8080`)); // listen on port 8080 
+app.use(express.static('./public'));
+
+var listener = app.listen(8080, () => { console.log('server started listening on port ' + listener.address().port) });
