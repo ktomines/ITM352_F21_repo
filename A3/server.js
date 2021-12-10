@@ -3,22 +3,22 @@
 // This is our server // 
 // Borrowed and modified code from our Assignmnet 2, Lab 13, 14, 15 + Alyssa Mencel Assignment 2 and Noah Kim
 var products = require('./products.json'); // set variable of products from product data to products
-var express = require('express');
+var express = require('express');  // load in express mode 
 var app = express();
-var myParser = require("body-parser");
+var myParser = require("body-parser"); //get access to POST and GET data
 app.use(myParser.urlencoded({ extended: true }));
 app.use(myParser.json());
 var qs = require('qs');
 var fs = require('fs'); // Built in module, load in fs package to use
-var session = require('express-session');
-app.use(session({ secret: "ITM352 rockz!" })); // Start sessions
-var cookieParser = require('cookie-parser');
-app.use(cookieParser());
-const nodemailer = require("nodemailer");
-const url = require('url');
+var session = require('express-session');  // to use express node 
+app.use(session({ secret: "MySecretKey" })); // intializes sessions; from Lab 15
+var cookieParser = require('cookie-parser'); // enables cookies
+app.use(cookieParser()); // calls cookies
+const nodemailer = require("nodemailer"); // enable to sent emial 
+const url = require('url'); 
 const { count } = require('console');
 
-// ------ Read User Data File ----- //
+// ALLOWS USERDATA FILE TO BE READ //
 var user_data_file = './user_data.json'; // Load in user data
 if (fs.existsSync(user_data_file)) { // Check to see if file exists
     var file_stats = fs.statSync(user_data_file);
@@ -27,99 +27,101 @@ if (fs.existsSync(user_data_file)) { // Check to see if file exists
 else {
     console.log(`${user_data_file} does not exist!`);
 }
-// ------ Read User Data File ----- //
 
-app.all('*', function (request, response, next) {
+// ACTS AS UNIVERSAL APP.GET //
+app.all('*', function (request, response, next) { //universal app.get
     if (typeof request.session.cart == "undefined") {
-        request.session.cart = {}; // initialize cart
+        request.session.cart = {}; // creates sessions for shopping cart
     }
     next();
 });
 
-// ------ Load In Product Data From Json ----- //
+// RETRIEVES PRODUCT DATA FROM JSON //
 app.post("/get_products_data", function (request, response, next) {
     response.json(products);
 });
-// ------ Load In Product Data ----- //
 
-// ------ Process Login Form ----- //
-// Followed Professor Port's Screencast + Borrowed and modified code from Alyssa Mencel assignment 2 code https://github.com/amencel/ITM352_F20_repo/tree/master/mencel_alyssa_assignment2
-// Got help from Professor Port during office hours
+// ALLOWS LOGIN FORM TO BE PROCESSED //
+// Borrowed and modified code from our Assignment 2 & Alyssa Mencel 
 app.post('/process_login', function (request, response, next) {
-    delete request.query.username_error; // Deletes error from query after fixed
-    delete request.query.password_error; // Deletes error from query after fixed
-    username = request.body.username.toLowerCase(); // Username as all lower case
-    if (typeof user_data[username] != 'undefined') { // Check if username entered exists in user data
-        if (user_data[username].password == request.body.psw) { // Check if password entered matches password in user data
-            request.query.name = user_data[username].name;
-            request.query.email = user_data[username].email;
-            response_string = `<script>
-            alert('${user_data[username].name} Login Successful!');
-            location.href = "${'./invoice.html?' + qs.stringify(request.query)}";
+    // For username & password, deletes error from query after fixed 
+    delete request.query.username_error; 
+    delete request.query.password_error; 
+    username = request.body.username.toLowerCase(); // makes sure username is all lowercase
+    if (typeof user_data[username] != 'undefined') { // checks if username is registered in user_data.json & correct
+        if (user_data[username].password == request.body.psw) { // check if password is registered in user_data.json & correct
+            request.query.name = user_data[username].name; // personalization; retrieves name associated with username
+            request.query.email = user_data[username].email; // retrieves email associated with username
+            response_string = 
+            // personalization after successful login
+            //line 59: after successful login alert
+            //line 61: after successful login redirect to invoice.html
+            `<script> 
+            alert('${user_data[username].name} Login Successful!'); 
+            location.href = "${'./invoice.html?' + qs.stringify(request.query)}"; 
             </script>`;
             var user_info = {"username": username, "name": user_data[username].name, "email": user_data[username].email};
-            response.cookie('user_info', JSON.stringify(user_info), { maxAge: 30 * 60 * 1000 });
-            response.send(response_string); // If no errors found, redirect to invoice with query string of username information and products
+            response.cookie('user_info', JSON.stringify(user_info), { maxAge: 30 * 60 * 1000 }); //EXTRA CREDIT; expires session after 30 minutes
+            response.send(response_string);//redirect to invoice.html with username info & products query-string, if no errors 
             return;
-        } else { // If password is not entered correctly, send error alert
+        } else { //Send error alert if password is invalid
             request.query.username = username;
             request.query.name = user_data[username].name;
-            request.query.password_error = 'Invalid Password!';
+            request.query.password_error = 'Thats Not a Correct Password! :( ';
         }
-    } else { // If username entered is not found in user data, send error alert
+    } else { //Send error alert if username is invalid
         request.query.username = username;
-        request.query.username_error = 'Invalid Username!';
+        request.query.username_error = 'Thats Not a Correct Username! :(';
     }
-    response.redirect('./login.html?' + qs.stringify(request.query)); // If there are errors, redirect to same page
+    response.redirect('./login.html?' + qs.stringify(request.query)); // make user login again, if errors
 });
-// ------ End Process Login Form ----- //
 
 
-// ------ Process Registration form ----- //
+// REGISTRATION FORM //
 app.post('/process_register', function (request, response, next) {
     var errors = [];
 
-    // -------------- Full name validation -------------- //
-    // Full name only allow letters
+    // VALIDATES FULL NAME //
+    // full name only validates letters characters
     if (/^[A-Za-z]+ [A-Za-z]+$/.test(request.body.fullname) == false) {
         errors.push('Only letter characters allowed for Full Name')
     }
-
-    // Full name maximum character length is 30
+    // full name character length must be less than 30 
     if ((request.body.fullname.length > 30 || request.body.fullname.length < 1)) {
-        errors.push('Full Name must contain Maximum 30 Characters')
+        errors.push('Full Name must contain Maximum 30 Characters!')
     }
 
-    // -------------- Username validation -------------- //
-    // Username all lowercase (case insensitive)
+    // VALIDATES USERNAME //
+    // allows username to be case insensitive
     username = request.body.username.toLowerCase();
-
-    // Check if username is in user data. If so, push username taken error
+    // check if username is already registered, display error
     if (typeof user_data[username] != 'undefined') {
-        errors.push('Username taken');
+        errors.push('This username is taken already, get creative!');
     }
-    // Username only allow letters and numbers
+    // only allows username to have letters & numbers
     if (/^[0-9a-zA-Z]+$/.test(request.body.username) == false) {
-        errors.push('Only Letters And Numbers Allowed for Username');
+        errors.push('Only Letters And Numbers Allowed for Username!');
     }
-    // Username minimum character length is 4 maximum character length is 10
-    if ((request.body.username.length > 10 || request.body.username.length < 4)) {
-        errors.push('Username must contain at least 4 characters and a maximum of 10 characters')
+    // minimum username character length is minimum of 3 & maximum of 12
+    if ((request.body.username.length > 12 || request.body.username.length < 3)) {
+        errors.push('Username must have a minimum of 3 characters & a maximum of 12 characters!')
     }
 
-    // -------------- Email validation -------------- //
+    // VALIDATES EMAIL //
+    // got code from W3spoint.com
     // Email only allows certain character for x@y.z
     if (/[A-Za-z0-9._]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(request.body.email) == false) {
-        errors.push('Must enter a valid email (username@mailserver.domain).');
+        errors.push('Must enter a valid email!');
     }
 
-    // -------------- Password validation -------------- //
-    // Password minumum 6 characters // 
+    // VALIDATES PASSWORD //
+    // Makes password be a minumum 6 characters 
     if (request.body.password.length < 6) {
-        errors.push('Password Minimum 6 Characters')
+        errors.push('A strong password is at least 6 characters!')
     }
-    // -------------- Repeat Password validation -------------- //
-    // Check if password matches repeat password
+    
+    // CONFIRMS PASSWORD //
+    // makes sure passwords are equal
     if (request.body.password !== request.body.repeat_password) {
         errors.push('Passwords Do Not Match')
     }
