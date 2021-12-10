@@ -8,7 +8,7 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: rgb(255, 255, 255);
-    position: sticky; /* amkes navbar stay in place when scrolling */
+    position: sticky; /* makes navbar stay in place when scrolling */
     top: 0;
     width: 100%;
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -26,7 +26,7 @@ li a {
 }
 /* makes buttons purple when hovering */ 
 li a:hover:not(.active) {
-    background-color: oldlace;
+    background-color: pink;
 }
 .active {
     background-color: whitesmoke;
