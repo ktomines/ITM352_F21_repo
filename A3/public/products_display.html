@@ -30,7 +30,7 @@
           // Data from qty text box and put back into text box (sticky)
           product_form[`quantity${i}`].value = a_qty;
           checkQuantityTextbox(product_form[`quantity${i}`]);
-          if (isNonNegInt(a_qty) == false) {
+          if (isNonNegIntegereger(a_qty) == false) {
             haserrors = true;
           }
           if (a_qty > 0) {
@@ -51,8 +51,8 @@
     }
   };
 
-  // Took functions (isNonNegInt & checkQuantityTextbox) from Lab 11 & 12, but adjusted to meet my webpage's requirements
-  function isNonNegInt(q, return_errors = false) { // Checks if the values input are a positive integer
+  // Took functions (isNonNegInteger & checkQuantityTextbox) from Lab 11 & 12, but adjusted to meet my webpage's requirements
+  function isNonNegInteger(q, return_errors = false) { // Checks if the values input are a positive integer
     errors = []; // Initially assumes there are no errors
     if (q == ''); // If the input is "blank", set the value to 0 
     if (Number(q) != q) errors.push('<font color="red">Not a number!</font>'); // Check if string is a number value. If not, send error with reason.
@@ -62,8 +62,8 @@
     else if (parseInt(q) != q) errors.push('<font color="red">Not an integer</font>'); // Check that it is an integer. If not, send error with reason.
     return return_errors ? errors : (errors.length == 0);
   }
-  function checkQuantityTextbox(theTextbox) { // Checks qty txt box using isNonNegInt function
-    errs = isNonNegInt(theTextbox.value, true); // Calls isNonNegInt function
+  function checkQuantityTextbox(theTextbox) { // Checks qty txt box using isNonNegInteger function
+    errs = isNonNegInteger(theTextbox.value, true); // Calls isNonNegInteger function
     document.getElementById(theTextbox.name + '_label').innerHTML = errs.join(", ");
   }
 </script>
