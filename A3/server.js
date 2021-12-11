@@ -17,6 +17,7 @@ app.use(cookieParser()); // calls cookies
 const nodemailer = require("nodemailer"); // enable to sent emial 
 const url = require('url'); 
 const { count } = require('console');
+const e = require('express');
 
 // ALLOWS USERDATA FILE TO BE READ //
 var user_data_file = './user_data.json'; // Load in user data
@@ -179,13 +180,12 @@ app.post('/cart_qty', function (request, response) {
 var products_data; 
 var products_data_file = './products.json';
 if (fs.existsSync(products_data_file)) {
+    console.log("reading the file");
 var products_data= JSON.parse(fs.readFileSync(products_data_file, 'utf-8'));
 };
+console.log(products_data);
 // empty variable for avaliable quantities
-var a_qty;
-for ( i in products_data){
-    a_qty = products_data[i].quantity_available;
-};
+
 
 // PROCESS THE ORDER FROM PRODUCTS_DISPLAY //
 // Borrowed & Modified Code from Alyssia Chen A2
@@ -195,17 +195,20 @@ app.post('/add_to_cart', function (request, response) {
     var ptype = POST["prod_type"];
     var pindex = POST["prod_index"];
     //if the entered quantity passes non negative integer validation and is not 0, and theres enough in stock, add to cart. If no, tell user Invalid
-    if (isNonNegInteger(qty) && qty!=0) {
+    if (isNonNegInteger(qty) && qty!=0 && qty <= products_data[ptype][pindex].quantity_available) {
         // Add qty data to cart session
         if (typeof request.session.cart[ptype] == "undefined") {
             request.session.cart[ptype] = [];
         }
         request.session.cart[ptype][pindex] = parseInt(qty);
         response.json({ "status": "Successfully added to cart, please refresh browser to display number of items in cart." });
-    } if(qty > a_qty){ // if quantities are out of stock 
+    } else if(qty > products_data[ptype][pindex].quantity_available){ // if quantities are out of stock 
+        console.log("products data ptype =" + products_data[ptype]);
         response.json({ "status": "Not enough in stock, not added to cart" });
-    } else{ 
-        response.json({ "status": "Invalid quantity, not added to cart. Please ensure you are ordering at least one item and not more than what is in stock." });
+    } else if (qty==0){
+        response.json({ "status": "Invalid quantity, not added to cart. Please ensure you are ordering at least one item." });
+    } else {
+        response.json({ "status": "Invalid quantity. Please Enter a valid number."})
     }
 });
 
@@ -255,6 +258,7 @@ app.post('/completePurchase', function (request, response) {
     var invoice = request.body; // saves invoice data to variable
     var user_info = JSON.parse(request.cookies["user_info"]); // sets user info as javascript
     var the_email = user_info["email"]; //saves user email as variable
+    console.log(the_email);
     var transporter = nodemailer.createTransport({
         // sets up mail server
         //security, only functions on UH network
@@ -268,7 +272,7 @@ app.post('/completePurchase', function (request, response) {
     });
 
     var mailOptions = {
-        from: 'ktomines@hawaii.edu',
+        from: 'mgmulhal@hawaii.edu',
         to: the_email,
         subject: 'Thanks For Purchasing from Krizel and Maggie Boba! :) <3 ', //message in email if invoice sent
         html: invoice.invoicehtml
@@ -279,7 +283,7 @@ app.post('/completePurchase', function (request, response) {
         } else {
             status_str = `Your invoice was mailed to ${the_email}`;
         }
-        response.json({ "status": status_str });
+        response.json({ "status": status_str});
     });
     request.session.destroy(); //delete the session, once email is sent
 });
