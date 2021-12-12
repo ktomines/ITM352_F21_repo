@@ -17,7 +17,8 @@ app.use(cookieParser()); // calls cookies
 const nodemailer = require("nodemailer"); // enable to sent emial 
 const url = require('url'); 
 const { count } = require('console');
-const e = require('express');
+const e = require('express');// encryption
+const shift = 4; 
 
 // ALLOWS USERDATA FILE TO BE READ //
 var user_data_file = './user_data.json'; // Load in user data
@@ -42,6 +43,20 @@ app.post("/get_products_data", function (request, response, next) {
     response.json(products);
 });
 
+//PASSWORD ENCRYPTION EXTRA CREDIT
+//Borrowed and modified code from Stack overflow & Chloe Cheng
+function encrypt(password){
+    var encrypted = [];
+    var encrypted_result = "";
+
+    //loop through the passwords and save the new password as encrypted
+    for (var i = 0; i < password.length; i++){
+        encrypted.push(password.charCodeAt(i)+shift);
+        encrypted_result += String.fromCharCode(encrypted[i]);
+    }
+    return encrypted_result;
+}
+
 // ALLOWS LOGIN FORM TO BE PROCESSED //
 // Borrowed and modified code from our Assignment 2 & Alyssa Mencel 
 app.post('/process_login', function (request, response, next) {
@@ -49,8 +64,10 @@ app.post('/process_login', function (request, response, next) {
     delete request.query.username_error; 
     delete request.query.password_error; 
     username = request.body.username.toLowerCase(); // makes sure username is all lowercase
+    the_password = request.body.password;
+    let encrypted_password_input = encrypt(the_password);
     if (typeof user_data[username] != 'undefined') { // checks if username is registered in user_data.json & correct
-        if (user_data[username].password == request.body.psw) { // check if password is registered in user_data.json & correct
+        if (user_data[username].password == encrypted_password_input) { // check if password is registered in user_data.json & correct
             request.query.name = user_data[username].name; // personalization; retrieves name associated with username
             request.query.email = user_data[username].email; // retrieves email associated with username
             response_string = 
@@ -132,9 +149,10 @@ app.post('/process_register', function (request, response, next) {
     if (errors.length == 0) { 
         POST = request.body
         var username = POST['username']
+        let encrypted_pass = encrypt(request.body.password);//set the new password registered as encrypted one
         user_data[username] = {}; // Register it as user's information
         user_data[username].name = request.body.fullname; // POST user's name
-        user_data[username].password = request.body.password; // POST user's password
+        user_data[username].password = encrypted_pass;// POST: save encripted password
         user_data[username].email = request.body.email; // POST user's email
         data = JSON.stringify(user_data);
         fs.writeFileSync(user_data_file, data, "utf-8"); // Add new user to user data json file
@@ -184,8 +202,6 @@ if (fs.existsSync(products_data_file)) {
 var products_data= JSON.parse(fs.readFileSync(products_data_file, 'utf-8'));
 };
 console.log(products_data);
-// empty variable for avaliable quantities
-
 
 // PROCESS THE ORDER FROM PRODUCTS_DISPLAY //
 // Borrowed & Modified Code from Alyssia Chen A2
@@ -194,6 +210,9 @@ app.post('/add_to_cart', function (request, response) {
     var qty = POST["prod_qty"]; //
     var ptype = POST["prod_type"];
     var pindex = POST["prod_index"];
+
+    var cart_info = {"quantity":qty, "type":ptype, "index": pindex};
+    response.cookie('cart_info', JSON.stringify(cart_info),{maxAge: 30 * 60 * 1000});
     //if the entered quantity passes non negative integer validation and is not 0, and theres enough in stock, add to cart. If no, tell user Invalid
     if (isNonNegInteger(qty) && qty!=0 && qty <= products_data[ptype][pindex].quantity_available) {
         // Add qty data to cart session
@@ -226,10 +245,10 @@ app.post("/update_cart", function (request,response) {
     for (let ptype in request.body.quantities) { 
         for (let i in request.body.quantities[ptype]) {
             qty = request.body.quantities[ptype][i];
-            haserrors = !isNonNegInteger(qty) || haserrors; // if fails isNonNegInteger
+            haserrors = !isNonNegInteger(qty) || haserrors; // if fails isNonNegInteger or has errors 
         };
     };
-    if (haserrors == true) { // if there are errors, send error 
+    if (haserrors == true ) { // if there are errors, send alert
         msg = "Invalid quantities. Cart not updated";
     } else { // if there are no errors, update cart
         msg = "Cart successfully updated! :) ";
@@ -241,7 +260,7 @@ app.post("/update_cart", function (request,response) {
 });
 
 
-// LOGOUT
+// LOGOUT //
 app.get("/logout" , function (request, response) {
     var user_info = JSON.parse(request.cookies["user_info"]); // makes user info javascript
     var username = user_info["username"]; //checks to see whos logged in
@@ -274,7 +293,7 @@ app.post('/completePurchase', function (request, response) {
     var mailOptions = {
         from: 'mgmulhal@hawaii.edu',
         to: the_email,
-        subject: 'Thanks For Purchasing from Krizel and Maggie Boba! :) <3 ', //message in email if invoice sent
+        subject: `Thanks, ${user_info.name} For Purchasing from Krizel and Maggie Boba! :) <3 `, //message in email if invoice sent
         html: invoice.invoicehtml
     };
     transporter.sendMail(mailOptions, function (error, info) {
@@ -285,6 +304,7 @@ app.post('/completePurchase', function (request, response) {
         }
         response.json({ "status": status_str});
     });
+    response.clearCookie('user_info'); //destroys cookie
     request.session.destroy(); //delete the session, once email is sent
 });
 
