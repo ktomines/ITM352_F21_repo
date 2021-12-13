@@ -207,10 +207,9 @@ console.log(products_data);
 // Borrowed & Modified Code from Alyssia Chen A2
 app.post('/add_to_cart', function (request, response) {
     let POST = request.body; // create variable for the data entered into products_display
-    var qty = POST["prod_qty"]; //
+    var qty = POST["prod_qty"]; 
     var ptype = POST["prod_type"];
     var pindex = POST["prod_index"];
-
     var cart_info = {"quantity":qty, "type":ptype, "index": pindex};
     response.cookie('cart_info', JSON.stringify(cart_info),{maxAge: 30 * 60 * 1000});
     //if the entered quantity passes non negative integer validation and is not 0, and theres enough in stock, add to cart. If no, tell user Invalid
@@ -265,9 +264,14 @@ app.get("/logout" , function (request, response) {
     var user_info = JSON.parse(request.cookies["user_info"]); // makes user info javascript
     var username = user_info["username"]; //checks to see whos logged in
     //message if successful logout
+    if (user_info){
     logout_msg = `<script>alert('${user_info.name} has successfully logged out!'); location.href="./index.html";</script>`;
     response.clearCookie('user_info'); //destroys cookie
     response.send(logout_msg); //if logged out, send message 
+} else if (user_info == false){ //if no user_info (login), then display error message & redirect to index
+    logouterror_msg = `<script>alert('You can't log out if you're not logged in!'); location.href="./index.html";</script>`;
+    response.send(logouterror_msg);
+}
 });
 
 
