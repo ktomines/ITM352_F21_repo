@@ -190,7 +190,7 @@ app.post('/cart_qty', function (request, response) {
     for (pkey in request.session.cart) { 
         total += request.session.cart[pkey].reduce((a, b) => a + b, 0);
     }
-    response.json({"qty": total});
+    response.json({qty: total});
 });
 
 // MAKES PRODUCTS.JSON DATA INTO JAVA SCRIPT //
@@ -243,8 +243,11 @@ app.post("/update_cart", function (request,response) {
     let haserrors = false;
     for (let ptype in request.body.quantities) { 
         for (let i in request.body.quantities[ptype]) {
-            qty = request.body.quantities[ptype][i];
-            haserrors = !isNonNegInteger(qty) || haserrors; // if fails isNonNegInteger or has errors 
+            qty = Number(request.body.quantities[ptype][i]);
+            console.log(qty);
+            qty = parseInt(Number(qty));
+            haserrors = !isNonNegInteger(Number(qty)) || haserrors; // if fails isNonNegInteger or has errors 
+            console.log(qty);
         };
     };
     if (haserrors == true ) { // if there are errors, send alert
@@ -255,22 +258,28 @@ app.post("/update_cart", function (request,response) {
     }
     const ref_URL = new URL(request.get('Referrer')); //finds page that user came from, when items failed to add to cart 
     ref_URL.searchParams.set("msg", msg); // get new qs and add to already exisiting qs
-    response.redirect(ref_URL.toString()); //redirect to page user was just on
+   response.redirect(ref_URL.toString()); //redirect to page user was just on
+   console.log(qty);
 });
 
 
 // LOGOUT //
 app.get("/logout" , function (request, response) {
-    var user_info = JSON.parse(request.cookies["user_info"]); // makes user info javascript
-    var username = user_info["username"]; //checks to see whos logged in
+    var user_info = request.cookies["user_info"]; // makes user info javascript
+    console.log(JSON.stringify(user_info));
     //message if successful logout
-    if (user_info){
+    if (user_info != undefined){
+    var username = user_info["username"]; //checks to see whos logged in
+
     logout_msg = `<script>alert('${user_info.name} has successfully logged out!'); location.href="./index.html";</script>`;
     response.clearCookie('user_info'); //destroys cookie
     response.send(logout_msg); //if logged out, send message 
-} else if (user_info == false){ //if no user_info (login), then display error message & redirect to index
-    logouterror_msg = `<script>alert('You can't log out if you're not logged in!'); location.href="./index.html";</script>`;
+
+} else { //if no user_info (login), then display error message & redirect to index
+    console.log("in here");
+    logouterror_msg = `<script>alert("You can't log out if you're not logged in!"); location.href="./index.html";</script>`;
     response.send(logouterror_msg);
+    
 }
 });
 
